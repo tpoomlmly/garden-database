@@ -1,9 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <head>
-	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon"></link>
-	<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon"></link>
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+	<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 	<title>Hello</title>
 </head>
 <body>
-Hello
+Hello<br />
+<a href="{{ url_for('clients') }}">Go to the clients page</a><br />
+<a href="{{ url_for('plants') }}">Go to the plants page</a><br />
 </body>
