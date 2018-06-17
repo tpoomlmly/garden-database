@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Clients</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% set title = "Clients" %}
+{% block body %}
+{{ super() }}
 This is the clients page.<br />
 <a href="{{ url_for('index') }}">Go back to the main page</a>
-</body>
-</html>
+{% endblock %}

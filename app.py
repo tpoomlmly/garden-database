@@ -24,7 +24,7 @@ def plants():
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon2.ico', mimetype='image/x-icon')
+                               'favicon.ico', mimetype='image/x-icon')
 
 # app.add_url_rule('/favicon.ico', redirect_to=url_for('static', filename='favicon.ico'))
 
