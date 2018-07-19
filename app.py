@@ -13,13 +13,23 @@ def index():
     return render_template("website.html")
 
 
-@app.route("/clients")
+@app.route("/clients", methods=["GET"])
 def clients():
     return render_template("clients.html")
 
 
-@app.route("/plants")
+@app.route("/clients", methods=["POST"])
+def clientspost():
+    return render_template("clients.html")
+
+
+@app.route("/plants", methods=["GET"])
 def plants():
+    return render_template("plants.html")
+
+
+@app.route("/plants", methods=["POST"])
+def plantspost():
     return render_template("plants.html")
 
 
@@ -31,4 +41,5 @@ def favicon():
 
 if __name__ == "__main__":
     context = ('server.crt', 'server.key')
+    app.secret_key = "Ye to misery wisdom plenty polite to as."
     app.run(host='localhost', port='443', debug=False, ssl_context=context)
