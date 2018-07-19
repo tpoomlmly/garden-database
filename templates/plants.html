@@ -1,3 +1,10 @@
 {% extends "page.html" %}
 {% set title = "Plants" %}
 {% set pagetype = "plant" %}
+{% block formcontents %}
+{{ super() }}
+<label class="control-label">Name:</label>
+<input type="text" name="plantname"><br />
+<label class="control-label">Latin name:</label>
+<input type="text" name="latinname"><br />
+{% endblock %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% if pagetype is not defined %}{% set pagetype = "(page type error)" %}{% endif %}
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -15,8 +16,13 @@ This is the {{ pagetype }}s page. <br />
 <div id="popupDiv" class="popup">
     <div class="popupContent">
         <span class="closeBtn">&times;</span>
-        <p>This is the dialogue box for adding a new {{ pagetype }}.</p>
-        <br /><br /><br /><br /><br /><br /><br /><br />
+        <form method="post" class="form-horizontal">
+            <h3>Add a new {{ pagetype }}</h3><br />
+            {% block formcontents %}
+            {% endblock %}
+            <br />
+            <input type="submit" name="submit{{ pagetype }}" value="Add {{ pagetype }}">
+        </form>
     </div>
 </div>
 {# End popup code #}
