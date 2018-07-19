@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
+
+{% block body %}
+{{ super() }}
+This is the {{ pagetype }}s page. <br />
+<a href="{{ url_for('index') }}">Go back to the main page</a> <br />
+
+{# Begin popup code #}
+<button id="popupBtn">Add a new {{ pagetype }}</button>
+
+<div id="popupDiv" class="popup">
+    <div class="popupContent">
+        <span class="closeBtn">&times;</span>
+        <p>This is the dialogue box for adding a new {{ pagetype }}.</p>
+        <br /><br /><br /><br /><br /><br /><br /><br />
+    </div>
+</div>
+{# End popup code #}
+
+{% block bottom %}
+{{ super() }}
+<script src="{{ url_for('static', filename='scripting.js') }}"></script>
+{% endblock %}
+{% endblock %}

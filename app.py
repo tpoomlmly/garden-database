@@ -13,23 +13,13 @@ def index():
     return render_template("website.html")
 
 
-@app.route("/clients", methods=["GET"])
+@app.route("/clients", methods=["GET", "POST"])
 def clients():
     return render_template("clients.html")
 
 
-@app.route("/clients", methods=["POST"])
-def clientspost():
-    return render_template("clients.html")
-
-
-@app.route("/plants", methods=["GET"])
+@app.route("/plants", methods=["GET", "POST"])
 def plants():
-    return render_template("plants.html")
-
-
-@app.route("/plants", methods=["POST"])
-def plantspost():
     return render_template("plants.html")
 
 
