@@ -10,7 +10,7 @@ db = sqlite3.connect('garden.db')
 
 @app.route("/")
 def index():
-    return render_template("website.html")
+    return render_template("index.html")
 
 
 @app.route("/clients", methods=["GET", "POST"])
