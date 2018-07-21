@@ -3,8 +3,12 @@
 {% set pagetype = "plant" %}
 {% block formcontents %}
 {{ super() }}
-<label class="control-label">Name:</label>
-<input type="text" name="plantname"><br />
-<label class="control-label">Latin name:</label>
-<input type="text" name="latinname"><br />
+<div class="form-group row">
+    <label class="control-label" for="plantname">Name:</label>
+    <input type="text" class="form-control" id="plantname" name="plantname" placeholder="Enter plant name">
+</div>
+<div class="form-group row">
+    <label class="control-label" for="latinname">Latin name:</label>
+    <input type="text" class="form-control" id="latinname" name="latinname" placeholder="Enter latin name">
+</div>
 {% endblock %}
