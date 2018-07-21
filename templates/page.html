@@ -7,12 +7,12 @@ This is the {{ pagetype }}s page. <br />
 <a href="{{ url_for('index') }}">Go back to the main page</a> <br />
 
 {# Begin popup code #}
-<button type="button" id="popup-btn" class="btn btn-light" data-toggle="modal" data-target="#popup-div">
+<button type="button" id="popup-btn" class="btn btn-secondary" data-toggle="modal" data-target="#popup-div">
     Add a new {{ pagetype }}
 </button>
 
 <div id="popup-div" class="modal fade">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
 
         {# Begin popup content #}
         <div class="modal-content">
