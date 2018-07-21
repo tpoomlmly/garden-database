@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 {% if pagetype is not defined %}{% set pagetype = "(page type error)" %}{% endif %}
-{% block head %}
-{{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-{% endblock %}
 
 {% block body %}
 {{ super() }}
@@ -11,24 +7,34 @@ This is the {{ pagetype }}s page. <br />
 <a href="{{ url_for('index') }}">Go back to the main page</a> <br />
 
 {# Begin popup code #}
-<button id="popupBtn">Add a new {{ pagetype }}</button>
+<button type="button" id="popup-btn" class="btn btn-light" data-toggle="modal" data-target="#popup-div">
+    Add a new {{ pagetype }}
+</button>
 
-<div id="popupDiv" class="popup">
-    <div class="popupContent">
-        <span class="closeBtn">&times;</span>
-        <form method="post" class="form-horizontal">
-            <h3>Add a new {{ pagetype }}</h3><br />
-            {% block formcontents %}
-            {% endblock %}
-            <br />
-            <input type="submit" name="submit{{ pagetype }}" value="Add {{ pagetype }}">
-        </form>
+<div id="popup-div" class="modal fade">
+    <div class="modal-dialog">
+
+        {# Begin popup content #}
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="form-title">Add a new {{ pagetype }}</h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form method="post" class="form-horizontal">
+                <div class="modal-body">
+                    <div class="container">
+                        {% block formcontents %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="submit-{{ pagetype }}" class="btn btn-success">Add {{ pagetype }}</button>
+                </div>
+            </form>
+        </div>
+        {# End popup content #}
+
     </div>
 </div>
 {# End popup code #}
-
-{% block bottom %}
-{{ super() }}
-<script src="{{ url_for('static', filename='scripting.js') }}"></script>
-{% endblock %}
 {% endblock %}
