@@ -1,11 +1,10 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, request
 from flask_sslify import SSLify
-import sqlite3
+import dbc
 import os
 
 app = Flask(__name__)
 sslify = SSLify(app)
-db = sqlite3.connect('garden.db')
 
 
 @app.route("/")
@@ -20,6 +19,10 @@ def clients():
 
 @app.route("/plants", methods=["GET", "POST"])
 def plants():
+    if request.method == "POST":
+        dbc.insert_plant(request.form["plantname"],
+                         request.form["latinname"],
+                         "Placeholder maintenance")
     return render_template("plants.html")
 
 
