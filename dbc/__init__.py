@@ -158,6 +158,18 @@ def delete_pc_link(cid, pid):
         c.execute("DELETE FROM client_plant_junction WHERE cid=? AND pid=?", (cid, pid))
 
 
+def select_pc_links(cid=None, pid=None):
+    with DBConnection() as c:
+        if (cid and pid) is not None:
+            return c.execute("SELECT * FROM client_plant_junction WHERE cid=? AND pid=?", (cid, pid))
+        elif cid is not None:
+            return c.execute("SELECT * FROM client_plant_junction WHERE cid=?", (cid,))
+        elif pid is not None:
+            return c.execute("SELECT * FROM client_plant_junction WHERE pid=?", (pid,))
+        else:
+            return c.execute("SELECT * FROM client_plant_junction")
+
+
 def link_job_to_plant(pid, mid):
     with DBConnection() as c:
         c.execute("INSERT INTO plant_job_junction (pid, mid) VALUES (?,?)", (pid, mid))
@@ -166,3 +178,15 @@ def link_job_to_plant(pid, mid):
 def delete_jp_link(pid, mid):
     with DBConnection() as c:
         c.execute("DELETE FROM plant_job_junction WHERE pid=? AND mid=?", (pid, mid))
+
+
+def select_jp_links(pid=None, mid=None):
+    with DBConnection() as c:
+        if (pid and mid) is not None:
+            return c.execute("SELECT * FROM plant_jop_junction WHERE pid=? AND mid=?", (pid, mid))
+        elif pid is not None:
+            return c.execute("SELECT * FROM plant_jop_junction WHERE pid=?", (pid,))
+        elif mid is not None:
+            return c.execute("SELECT * FROM plant_jop_junction WHERE mid=?", (mid,))
+        else:
+            return c.execute("SELECT * FROM plant_jop_junction")
