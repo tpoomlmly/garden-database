@@ -11,7 +11,7 @@ class DBConnection(object):
         self.con = sql.connect(self.dbname)
         self.cur = self.con.cursor()
         self.cur.execute("CREATE TABLE IF NOT EXISTS clients "
-                         "(cid INTEGER PRIMARY KEY, Name TEXT NOT NULL, Plants TEXT")
+                         "(cid INTEGER PRIMARY KEY, Name TEXT NOT NULL, Plants TEXT);")
         self.cur.execute("CREATE TABLE IF NOT EXISTS maintenance "
                          "(mid INTEGER PRIMARY KEY, description TEXT, January TEXT, "
                          "February TEXT, March TEXT, April TEXT, May TEXT, June TEXT, "
