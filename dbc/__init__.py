@@ -11,15 +11,17 @@ class DBConnection(object):
         self.con = sql.connect(self.dbname)
         self.cur = self.con.cursor()
         self.cur.execute("CREATE TABLE IF NOT EXISTS clients "
-                         "(cid INTEGER PRIMARY KEY, Name TEXT NOT NULL, Plants TEXT);")
-        self.cur.execute("CREATE TABLE IF NOT EXISTS maintenance "
-                         "(mid INTEGER PRIMARY KEY, description TEXT, January TEXT, "
-                         "February TEXT, March TEXT, April TEXT, May TEXT, June TEXT, "
-                         "July TEXT, August TEXT, September TEXT, October TEXT, "
-                         "November TEXT, December TEXT);")
+                         "(cid INTEGER PRIMARY KEY, name TEXT NOT NULL);")
+        self.cur.execute("CREATE TABLE IF NOT EXISTS jobs "
+                         "(mid INTEGER PRIMARY KEY, description TEXT, jan TEXT, "
+                         "feb TEXT, mar TEXT, apr TEXT, may TEXT, jun TEXT, jul TEXT, "
+                         "aug TEXT, sep TEXT, oct TEXT, nov TEXT, dec TEXT);")
         self.cur.execute("CREATE TABLE IF NOT EXISTS plants "
-                         "(pid INTEGER PRIMARY KEY, name TEXT, latin_name TEXT UNIQUE, "
-                         "maintenance TEXT);")
+                         "(pid INTEGER PRIMARY KEY, name TEXT, latin_name TEXT UNIQUE);")
+        self.cur.execute("CREATE TABLE IF NOT EXISTS client_plant_junction "
+                         "(cid INTEGER, pid INTEGER);")
+        self.cur.execute("CREATE TABLE IF NOT EXISTS plant_job_junction "
+                         "(pid INTEGER, mid INTEGER);")
         return self
 
     def __exit__(self, *args):
