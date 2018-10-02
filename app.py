@@ -1,15 +1,15 @@
-from flask import Flask, render_template, send_from_directory, request
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for
 from flask_sslify import SSLify
 import dbc
 import os
 
 app = Flask(__name__)
-sslify = SSLify(app)
+sslify = SSLify(app=app, permanent=True)
 
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return redirect(url_for("clients"))
 
 
 @app.route("/clients", methods=["GET", "POST"])
@@ -21,9 +21,13 @@ def clients():
 def plants():
     if request.method == "POST":
         dbc.insert_plant(request.form["plantname"],
-                         request.form["latinname"],
-                         "Placeholder maintenance")
+                         request.form["latinname"])
     return render_template("plants.html")
+
+
+@app.route("/maintenance", methods=["GET", "POST"])
+def jobs():
+    return render_template("maintenance.html")
 
 
 @app.route("/favicon.ico")
@@ -35,4 +39,4 @@ def favicon():
 if __name__ == "__main__":
     context = ('server.crt', 'server.key')
     app.secret_key = "Ye to misery wisdom plenty polite to as."
-    app.run(host='localhost', port='443', debug=False, ssl_context=context)
+    app.run(host='localhost', port=443, debug=False, ssl_context=context)
