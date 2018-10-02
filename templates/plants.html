@@ -1,14 +1,19 @@
 {% extends "page.html" %}
 {% set title = "Plants" %}
 {% set pagetype = "plant" %}
+
 {% block formcontents %}
 {{ super() }}
 <div class="form-group row">
-    <label class="control-label" for="plantname">Name:</label>
-    <input type="text" class="form-control" id="plantname" name="plantname" placeholder="Enter plant name">
+    <label class="control-label" for="name">Name:</label>
+    <input type="text" class="form-control" id="name" name="name" placeholder="Enter plant name">
 </div>
 <div class="form-group row">
-    <label class="control-label" for="latinname">Latin name:</label>
-    <input type="text" class="form-control" id="latinname" name="latinname" placeholder="Enter latin name">
+    <label class="control-label" for="latin-name">Latin name:</label>
+    <input type="text" class="form-control" id="latin-name" name="latin-name" placeholder="Enter latin name">
+</div>
+<div class="form-group row">
+    <label class="control-label" for="blooming-period">Blooming period:</label>
+    <input type="text" class="form-control" id="blooming-period" name="blooming-period" placeholder="Enter blooming period">
 </div>
 {% endblock %}
