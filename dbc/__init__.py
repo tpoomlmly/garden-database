@@ -1,7 +1,7 @@
 import sqlite3 as sql
 
 
-class DBConnection(object):
+class DBConnection:
     def __init__(self):
         self.dbname = "database.db"
         self.con = None
@@ -12,14 +12,18 @@ class DBConnection(object):
         self.cur = self.con.cursor()
         self.cur.execute("CREATE TABLE IF NOT EXISTS clients "
                          "(cid INTEGER PRIMARY KEY, name TEXT NOT NULL);")
+
         self.cur.execute("CREATE TABLE IF NOT EXISTS jobs "
-                         "(mid INTEGER PRIMARY KEY, description TEXT, jan TEXT, "
-                         "feb TEXT, mar TEXT, apr TEXT, may TEXT, jun TEXT, jul TEXT, "
-                         "aug TEXT, sep TEXT, oct TEXT, nov TEXT, dec TEXT);")
+                         "(mid INTEGER PRIMARY KEY, name TEXT, description TEXT, "
+                         "months TEXT);")
+
         self.cur.execute("CREATE TABLE IF NOT EXISTS plants "
-                         "(pid INTEGER PRIMARY KEY, name TEXT, latin_name TEXT UNIQUE);")
+                         "(pid INTEGER PRIMARY KEY, name TEXT, latin_name TEXT UNIQUE, "
+                         "blooming_period TEXT);")
+
         self.cur.execute("CREATE TABLE IF NOT EXISTS client_plant_junction "
                          "(cid INTEGER, pid INTEGER);")
+
         self.cur.execute("CREATE TABLE IF NOT EXISTS plant_job_junction "
                          "(pid INTEGER, mid INTEGER);")
         return self
@@ -34,13 +38,35 @@ class DBConnection(object):
         self.cur.execute(*args)
 
 
+class Plant:
+    def __init__(self, name, latin_name, blooming_period, pid=None):
+        self.id = pid or -1  # This is only used when reading from the database
+        self.name = name
+        self.latin_name = latin_name
+        self.blooming_period = blooming_period
+
+
+class Client:
+    def __init__(self, name, cid=None):
+        self.id = cid or -1
+        self.name = name
+
+
+class Maintenance:
+    def __init__(self, name, description, months, mid=None):
+        self.id = mid or -1
+        self.name = name
+        self.description = description
+        self.months = months
+
+
 ###############################################
 # Plants
 ###############################################
-def insert_plant(name, latin_name):
+def insert_plant(plant):
     with DBConnection() as c:
-        c.execute("INSERT INTO plants (name,latin_name) VALUES (?,?)",
-                  (name, latin_name))
+        c.execute("INSERT INTO plants (name,latin_name,blooming_period) VALUES (?,?,?)",
+                  (plant.name, plant.latin_name, plant.blooming_period))
 
 
 def drop_plant(pid):
@@ -48,12 +74,12 @@ def drop_plant(pid):
         c.execute("DELETE FROM plants WHERE pid=?", (pid,))
 
 
-def update_plant(pid, name, latin_name):
+def update_plant(plant):
     with DBConnection() as c:
         c.execute("UPDATE plants "
                   "SET name=?, latin_name=? "
                   "WHERE pid=?",
-                  (name, latin_name, pid))
+                  (plant.name, plant.latin_name, plant.id))
 
 
 def select_plants(pid=None):
@@ -66,19 +92,16 @@ def select_plants(pid=None):
 
 
 def load_sql_plant_data(pid=None):
-    return [{"pid": row[0],
-             "name": row[1],
-             "latin_name": row[2]}
-            for row in select_plants(pid)]
+    return [Plant(row[1], row[2], row[3], row[0]) for row in select_plants(pid)]
 
 
 ###############################################
 # Clients
 ###############################################
-def insert_client(name):
+def insert_client(client):
     with DBConnection() as c:
         c.execute("INSERT INTO clients (name) VALUES (?)",
-                  (name,))
+                  (client.name,))
 
 
 def drop_client(cid):
@@ -86,11 +109,11 @@ def drop_client(cid):
         c.execute("DELETE FROM clients WHERE cid=?", (cid,))
 
 
-def update_client(cid, name):
+def update_client(client):
     with DBConnection() as c:
         c.execute("UPDATE clients "
                   "SET name=? WHERE cid=?",
-                  (name, cid))
+                  (client.name, client.id))
 
 
 def select_clients(cid=None):
@@ -102,20 +125,17 @@ def select_clients(cid=None):
         return c.cur.fetchall()
 
 
-def load_sql_client_data(pid=None):
-    return [{"cid": row[0],
-             "name": row[1]}
-            for row in select_clients(pid)]
+def load_sql_client_data(cid=None):
+    return [Client(row[1], row[0]) for row in select_clients(cid)]
 
 
 ###############################################
 # Maintenance jobs
 ###############################################
-def insert_job(description, jan, feb, mar, apr, may, jun, jul, aug, sep, oct_, nov, dec):
+def insert_job(job):
     with DBConnection() as c:
-        c.execute("INSERT INTO jobs (description,jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec) "
-                  "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                  (description, jan, feb, mar, apr, may, jun, jul, aug, sep, oct_, nov, dec))
+        c.execute("INSERT INTO jobs (name,description,months) VALUES (?,?,?)",
+                  (job.name, job.description, job.months))
 
 
 def drop_job(mid):
@@ -123,12 +143,11 @@ def drop_job(mid):
         c.execute("DELETE FROM jobs WHERE mid=?", (mid,))
 
 
-def update_job(mid, description, jan, feb, mar, apr, may, jun, jul, aug, sep, oct_, nov, dec):
+def update_job(job):
     with DBConnection() as c:
         c.execute("UPDATE jobs "
-                  "SET description=?, jan=?, feb=?, mar=?, apr=?, may=?, "
-                  "jun=?, jul=?, aug=?, sep=?, oct=?, nov=?, dec=? WHERE mid=?",
-                  (description, jan, feb, mar, apr, may, jun, jul, aug, sep, oct_, nov, dec, mid))
+                  "SET name=?, description=?, months=? WHERE mid=?",
+                  (job.name, job.description, job.months, job.id))
 
 
 def select_jobs(mid=None):
@@ -141,10 +160,7 @@ def select_jobs(mid=None):
 
 
 def load_sql_job_data(mid=None):
-    return [{"mid": row[0], "desc": row[1], "jan": row[2], "feb": row[3],
-             "mar": row[4], "apr": row[5], "may": row[6], "jun": row[7], "jul": row[8],
-             "aug": row[9], "sep": row[10], "oct": row[11], "nov": row[12], "dec": row[13]}
-            for row in select_jobs(mid)]
+    return [Maintenance(row[1], row[2], row[3]) for row in select_jobs(mid)]
 
 
 ###############################################
@@ -172,6 +188,28 @@ def select_pc_links(cid=None, pid=None):
             return c.execute("SELECT * FROM client_plant_junction")
 
 
+def select_plants_of_client(cid):
+    with DBConnection() as c:
+        return c.execute("SELECT clients.*, plants.*"
+                         "FROM clients"
+                         "LEFT JOIN client_plant_junction"
+                         "ON clients.cid=client_plant_junction.cid"
+                         "LEFT JOIN plants"
+                         "ON client_plant_junction.pid=plants.pid"
+                         "WHERE clients.cid=?;", (cid,))
+
+
+def select_clients_of_plant(pid):
+    with DBConnection() as c:
+        return c.execute("SELECT plants.*, clients.*"
+                         "FROM plants"
+                         "LEFT JOIN client_plant_junction"
+                         "ON plants.pid=client_plant_junction.pid"
+                         "LEFT JOIN clients"
+                         "ON client_plant_junction.cid=clients.cid"
+                         "WHERE plants.pid=?", (pid,))
+
+
 def link_job_to_plant(pid, mid):
     with DBConnection() as c:
         c.execute("INSERT INTO plant_job_junction (pid, mid) VALUES (?,?)", (pid, mid))
@@ -185,10 +223,32 @@ def delete_jp_link(pid, mid):
 def select_jp_links(pid=None, mid=None):
     with DBConnection() as c:
         if (pid and mid) is not None:
-            return c.execute("SELECT * FROM plant_jop_junction WHERE pid=? AND mid=?", (pid, mid))
+            return c.execute("SELECT * FROM plant_job_junction WHERE pid=? AND mid=?", (pid, mid))
         elif pid is not None:
-            return c.execute("SELECT * FROM plant_jop_junction WHERE pid=?", (pid,))
+            return c.execute("SELECT * FROM plant_job_junction WHERE pid=?", (pid,))
         elif mid is not None:
-            return c.execute("SELECT * FROM plant_jop_junction WHERE mid=?", (mid,))
+            return c.execute("SELECT * FROM plant_job_junction WHERE mid=?", (mid,))
         else:
-            return c.execute("SELECT * FROM plant_jop_junction")
+            return c.execute("SELECT * FROM plant_job_junction")
+
+
+def select_jobs_of_plant(pid):
+    with DBConnection() as c:
+        return c.execute("SELECT plants.*, jobs.*"
+                         "FROM plants"
+                         "LEFT JOIN plant_job_junction"
+                         "ON plants.pid=plant_job_junction.pid"
+                         "LEFT JOIN jobs"
+                         "ON plant_job_junction.mid=jobs.mid"
+                         "WHERE plants.pid=?;", (pid,))
+
+
+def select_plants_of_job(mid):
+    with DBConnection() as c:
+        return c.execute("SELECT jobs.*, plants.*"
+                         "FROM jobs"
+                         "LEFT JOIN plant_job_junction"
+                         "ON jobs.mid=plant_job_junction.mid"
+                         "LEFT JOIN plants"
+                         "ON plant_job_junction.pid=plantspcid"
+                         "WHERE jobs.mid=?", (mid,))
