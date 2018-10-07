@@ -44,12 +44,14 @@ class Plant:
         self.name = name
         self.latin_name = latin_name
         self.blooming_period = blooming_period
+        self.jobs = []
 
 
 class Client:
     def __init__(self, name, cid=None):
         self.id = cid or -1
         self.name = name
+        self.plants = []
 
 
 class Maintenance:
@@ -135,7 +137,7 @@ def load_sql_client_data(cid=None):
 def insert_job(job):
     with DBConnection() as c:
         c.execute("INSERT INTO jobs (name,description,months) VALUES (?,?,?)",
-                  (job.name, job.description, job.months))
+                  (job.name, job.description, repr(job.months)))
 
 
 def drop_job(mid):
@@ -147,7 +149,7 @@ def update_job(job):
     with DBConnection() as c:
         c.execute("UPDATE jobs "
                   "SET name=?, description=?, months=? WHERE mid=?",
-                  (job.name, job.description, job.months, job.id))
+                  (job.name, job.description, repr(job.months), job.id))
 
 
 def select_jobs(mid=None):
@@ -160,7 +162,7 @@ def select_jobs(mid=None):
 
 
 def load_sql_job_data(mid=None):
-    return [Maintenance(row[1], row[2], row[3]) for row in select_jobs(mid)]
+    return [Maintenance(row[1], row[2], eval(row[3]), row[0]) for row in select_jobs(mid)]
 
 
 ###############################################
