@@ -13,13 +13,33 @@
     <textarea class="form-control" rows="3" id="description" name="desc" style="resize: none;"></textarea>
 </div>
 <div class="form-group row">
-    {% for month_short, month_long in month_dict.items() %}
+    {% for month in month_list %}
     <div class="col-6 col-sm-3">
         <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" id="{{ month_short }}" name="{{ month_short }}">
-            <label class="custom-control-label" for="{{ month_short }}">{{ month_long }}</label>
+            <input type="checkbox" class="custom-control-input" id="{{ month }}" name="{{ month }}">
+            <label class="custom-control-label" for="{{ month }}">{{ month }}</label>
         </div>
     </div>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block thead %}
+{{ super() }}
+<th scope="col">Name</th>
+<th scope="col">Description</th>
+<th scope="col">Months</th>
+<th scope="col" style="width: 80px"></th>
+{% endblock %}
+
+{% block tbody %}
+{{ super() }}
+{% for job in j_data %}
+<tr>
+    <th scope="row">{{ job.name }}</th>
+    <td>{{ job.description }}</td>
+    <td>{{ ', '.join(job.months) }}</td>
+    <td><button type="button" class="btn btn-outline-info btn-sm" id="edit-job-{{ job.id }}">Edit</button></td>
+</tr>
+{% endfor %}
 {% endblock %}

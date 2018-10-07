@@ -17,3 +17,23 @@
     <input type="text" class="form-control" id="blooming-period" name="blooming-period" placeholder="Enter blooming period">
 </div>
 {% endblock %}
+
+{% block thead %}
+{{ super() }}
+<th scope="col">Name</th>
+<th scope="col">Latin name</th>
+<th scope="col">Blooming period</th>
+<th scope="col" style="width: 80px"></th>
+{% endblock %}
+
+{% block tbody %}
+{{ super() }}
+{% for plant in p_data %}
+<tr>
+    <th scope="row">{{ plant.name }}</th>
+    <td>{{ plant.latin_name }}</td>
+    <td>{{ plant.blooming_period }}</td>
+    <td><button type="button" class="btn btn-outline-info btn-sm" id="edit-plant-{{ plant.id }}">Edit</button></td>
+</tr>
+{% endfor %}
+{% endblock %}

@@ -36,7 +36,7 @@
     {# End extra exclusive content #}
 
     {# Begin data table #}
-    <table class="table table-striped table-hover">
+    <table class="table table-striped">
         <thead class="thead-dark">
             {% block thead %}
             {% endblock %}
@@ -69,11 +69,13 @@
                 <div class="modal-body">
                     <div class="container">
                         {% block formcontents %}
+                        <input type="hidden" name="formtype" value="add">
+                        <!--TODO add edit button functionality-->
                         {% endblock %}
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="submit-{{ pagetype }}" class="btn btn-success">Add {{ pagetype }}</button>
+                    <button type="submit" class="btn btn-success">Add {{ pagetype }}</button>
                 </div>
             </form>
         </div>

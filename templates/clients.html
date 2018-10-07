@@ -9,3 +9,19 @@
     <input type="text" class="form-control" id="name" name="name" placeholder="Enter client name">
 </div>
 {% endblock %}
+
+{% block thead %}
+{{ super() }}
+<th scope="col">Client name</th>
+<th scope="col" style="width: 80px"></th>
+{% endblock %}
+
+{% block tbody %}
+{{ super() }}
+{% for client in c_data %}
+<tr>
+    <th scope="row">{{ client.name }}</th>
+    <td><button type="button" class="btn btn-outline-info btn-sm" id="edit-client-{{ client.id }}">Edit</button></td>
+</tr>
+{% endfor %}
+{% endblock %}
