@@ -34,12 +34,13 @@
 
 {% block tbody %}
 {{ super() }}
-{% for job in j_data %}
+{% for job in data %}
 <tr>
     <th scope="row">{{ job.name }}</th>
     <td>{{ job.description }}</td>
     <td>{{ ', '.join(job.months) }}</td>
-    <td><button type="button" class="btn btn-outline-info btn-sm" id="edit-job-{{ job.id }}">Edit</button></td>
+    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal"
+                id="edit-job-{{ job.id }}" data-target="#popup-div-edit-{{ job.id }}">Edit</button></td>
 </tr>
 {% endfor %}
 {% endblock %}

@@ -28,12 +28,13 @@
 
 {% block tbody %}
 {{ super() }}
-{% for plant in p_data %}
+{% for plant in data %}
 <tr>
     <th scope="row">{{ plant.name }}</th>
     <td>{{ plant.latin_name }}</td>
     <td>{{ plant.blooming_period }}</td>
-    <td><button type="button" class="btn btn-outline-info btn-sm" id="edit-plant-{{ plant.id }}">Edit</button></td>
+    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal"
+                id="edit-plant-{{ plant.id }}" data-target="#popup-div-edit-{{ plant.id }}">Edit</button></td>
 </tr>
 {% endfor %}
 {% endblock %}

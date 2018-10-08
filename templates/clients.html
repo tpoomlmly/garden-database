@@ -18,10 +18,11 @@
 
 {% block tbody %}
 {{ super() }}
-{% for client in c_data %}
+{% for client in data %}
 <tr>
     <th scope="row">{{ client.name }}</th>
-    <td><button type="button" class="btn btn-outline-info btn-sm" id="edit-client-{{ client.id }}">Edit</button></td>
+    <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal"
+                id="edit-client-{{ client.id }}" data-target="#popup-div-edit-{{ client.id }}">Edit</button></td>
 </tr>
 {% endfor %}
 {% endblock %}
