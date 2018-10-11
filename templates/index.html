@@ -1,8 +1,0 @@
-{% extends "base.html" %}
-{% set title = "Home" %}
-{% block body %}
-{{ super() }}
-Hello<br />
-<a href="{{ url_for('clients') }}">Go to the clients page</a><br />
-<a href="{{ url_for('plants') }}">Go to the plants page</a><br />
-{% endblock %}
