@@ -10,6 +10,8 @@ class DBConnection:
     def __enter__(self):
         self.con = sql.connect(self.dbname)
         self.cur = self.con.cursor()
+        self.cur.execute("PRAGMA foreign_keys = ON;")
+        
         self.cur.execute("CREATE TABLE IF NOT EXISTS clients "
                          "(cid INTEGER PRIMARY KEY, name TEXT NOT NULL);")
 
@@ -22,10 +24,10 @@ class DBConnection:
                          "blooming_period TEXT);")
 
         self.cur.execute("CREATE TABLE IF NOT EXISTS client_plant_junction "
-                         "(cid INTEGER, pid INTEGER);")
+                         "(cid INTEGER REFERENCES clients, pid INTEGER REFERENCES plants);")
 
         self.cur.execute("CREATE TABLE IF NOT EXISTS plant_job_junction "
-                         "(pid INTEGER, mid INTEGER);")
+                         "(pid INTEGER REFERENCES plants, mid INTEGER REFERENCES jobs);")
         return self
 
     def __exit__(self, *args):
