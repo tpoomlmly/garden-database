@@ -69,13 +69,11 @@
                 <div class="modal-body">
                     <div class="container">
                         {% block formcontents %}
-                        <input type="hidden" name="formtype" value="add">
-                        <!--TODO add edit button functionality-->
                         {% endblock %}
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Add {{ pagetype }}</button>
+                    <button type="submit" class="btn btn-success" name="add">Add {{ pagetype }}</button>
                 </div>
             </form>
         </div>
@@ -95,15 +93,15 @@
             <form method="post" class="form-horizontal" autocomplete="off">
                 <div class="modal-body">
                     <div class="container">
-                        {% block editformcontents %}
-                        <input type="hidden" name="formtype" value="edit">
+                        {% block editformcontents scoped %}
+                        <!--TODO add edit button functionality-->
                         {% endblock %}
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-danger"
                             name="delete" form="del-{{ db_item.id }}">Delete {{ pagetype }}</button>
-                    <button type="submit" class="btn btn-info">Edit {{ pagetype }}</button>
+                    <button type="submit" class="btn btn-info" name="edit">Edit {{ pagetype }}</button>
                 </div>
             </form>
             <form method="post" id="del-{{ db_item.id }}"
