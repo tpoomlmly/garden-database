@@ -22,9 +22,12 @@ def clients():
     if request.method == "POST":
         if "delete" in request.form:
             dbc.drop_client(request.form["id"])
-        else:
+        elif "add" in request.form:
             client = dbc.Client(request.form["name"])
             dbc.insert_client(client)
+        elif "edit" in request.form:
+            client = dbc.Client(request.form["name"], request.form["id"])
+            dbc.update_client(client)
     return render_template("clients.html", data=dbc.load_sql_client_data())
 
 
@@ -35,11 +38,17 @@ def plants():
     if request.method == "POST":
         if "delete" in request.form:
             dbc.drop_plant(request.form["id"])
-        else:
+        elif "add" in request.form:
             plant = dbc.Plant(request.form["name"],
                               request.form["latin-name"],
                               request.form["blooming-period"])
             dbc.insert_plant(plant)
+        elif "edit" in request.form:
+            plant = dbc.Plant(request.form["name"],
+                              request.form["latin-name"],
+                              request.form["blooming-period"],
+                              request.form["id"])
+            dbc.update_plant(plant)
     return render_template("plants.html", data=dbc.load_sql_plant_data())
 
 
@@ -47,9 +56,8 @@ def plants():
 def jobs():
     if request.method == "POST":
         if "delete" in request.form:
-            print(request.form["id"])
             dbc.drop_job(request.form["id"])
-        else:
+        elif "add" in request.form:
             # & is the intersection operator. set() converts the dict_keyiterator and list to sets so that the
             # intersection can be found of them. list() converts this back to a list which is sorted on the basis that
             # each item in the new list is the name of a month.
@@ -58,6 +66,13 @@ def jobs():
                                   request.form["desc"],
                                   active_months)
             dbc.insert_job(job)
+        elif "edit" in request.form:
+            active_months = sorted(list(set(request.form) & set(months)), key=dt_from_month)
+            job = dbc.Maintenance(request.form["name"],
+                                  request.form["desc"],
+                                  active_months,
+                                  request.form["id"])
+            dbc.update_client(job)
     return render_template("maintenance.html", data=dbc.load_sql_job_data(), month_list=months)
 
 
