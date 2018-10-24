@@ -81,9 +81,9 @@ def drop_plant(pid):
 def update_plant(plant):
     with DBConnection() as c:
         c.execute("UPDATE plants "
-                  "SET name=?, latin_name=? "
+                  "SET name=?, latin_name=?, blooming_period=? "
                   "WHERE pid=?",
-                  (plant.name, plant.latin_name, plant.id))
+                  (plant.name, plant.latin_name, plant.blooming_period, plant.id))
 
 
 def select_plants(pid=None):
