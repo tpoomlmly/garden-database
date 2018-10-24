@@ -2,13 +2,13 @@
 {% set title = "Clients" %}
 {% set pagetype = "client" %}
 
-{% block formcontents %}
-{{ super() }}
+{% macro formcontents(client=None) %}
 <div class="form-group row">
     <label class="control-label" for="name">Name:</label>
-    <input type="text" class="form-control" id="name" name="name" placeholder="Enter client name">
+    <input type="text" class="form-control" id="name" name="name" placeholder="Enter client name"
+        value="{% if client is not none %}{{ client.name }}{% endif %}">
 </div>
-{% endblock %}
+{% endmacro %}
 
 {% block thead %}
 {{ super() }}

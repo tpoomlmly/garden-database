@@ -2,21 +2,23 @@
 {% set title = "Plants" %}
 {% set pagetype = "plant" %}
 
-{% block formcontents %}
-{{ super() }}
+{% macro formcontents(plant=None) %}
 <div class="form-group row">
     <label class="control-label" for="name">Name:</label>
-    <input type="text" class="form-control" id="name" name="name" placeholder="Enter plant name">
+    <input type="text" class="form-control" id="name" name="name" placeholder="Enter plant name"
+        value="{% if plant is not none %}{{ plant.name }}{% endif %}">
 </div>
 <div class="form-group row">
     <label class="control-label" for="latin-name">Latin name:</label>
-    <input type="text" class="form-control" id="latin-name" name="latin-name" placeholder="Enter latin name">
+    <input type="text" class="form-control" id="latin-name" name="latin-name" placeholder="Enter latin name"
+        value="{% if plant is not none %}{{ plant.latin_name }}{% endif %}">
 </div>
 <div class="form-group row">
     <label class="control-label" for="blooming-period">Blooming period:</label>
-    <input type="text" class="form-control" id="blooming-period" name="blooming-period" placeholder="Enter blooming period">
+    <input type="text" class="form-control" id="blooming-period" name="blooming-period" placeholder="Enter blooming period"
+        value="{% if plant is not none %}{{ plant.blooming_period }}{% endif %}">
 </div>
-{% endblock %}
+{% endmacro %}
 
 {% block thead %}
 {{ super() }}

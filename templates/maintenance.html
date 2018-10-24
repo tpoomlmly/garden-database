@@ -2,27 +2,32 @@
 {% set title = "Maintenance" %}
 {% set pagetype = "maintenance job" %}
 
-{% block formcontents %}
-{{ super() }}
+{% macro formcontents(job=None) %}
+<!--suppress HtmlUnknownAttribute -->
 <div class="form-group row">
     <label class="control-label" for="name">Name:</label>
-    <input type="text" class="form-control" id="name" name="name" placeholder="Enter maintenance name">
+    <input type="text" class="form-control" id="name" name="name" placeholder="Enter maintenance name"
+        value="{% if job is not none %}{{ job.name }}{% endif %}">
 </div>
 <div class="form-group row">
     <label class="control-label" for="description">Description:</label>
-    <textarea class="form-control" rows="3" id="description" name="desc" style="resize: none;"></textarea>
+    <textarea class="form-control" rows="3" id="description" name="desc" style="resize: none;">
+        {%- if job is not none %}{{ job.description }}{% endif -%}
+    </textarea>
 </div>
 <div class="form-group row">
     {% for month in month_list %}
     <div class="col-6 col-sm-3">
         <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" id="{{ month }}" name="{{ month }}">
-            <label class="custom-control-label" for="{{ month }}">{{ month }}</label>
+            <input type="checkbox" class="custom-control-input"
+                   id="{% if job is not none %}edit-{{ job.id }}-{% endif %}{{ month }}"
+                   name="{{ month }}" {% if job is not none and month in job.months %}checked{% endif %}>
+            <label class="custom-control-label" for="{% if job is not none %}edit-{{ job.id }}-{% endif %}{{ month }}">{{ month }}</label>
         </div>
     </div>
     {% endfor %}
 </div>
-{% endblock %}
+{% endmacro %}
 
 {% block thead %}
 {{ super() }}

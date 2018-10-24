@@ -68,8 +68,7 @@
             <form method="post" class="form-horizontal" autocomplete="off">
                 <div class="modal-body">
                     <div class="container">
-                        {% block formcontents %}
-                        {% endblock %}
+                        {{ formcontents() }}
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -93,9 +92,7 @@
             <form method="post" class="form-horizontal" autocomplete="off">
                 <div class="modal-body">
                     <div class="container">
-                        {% block editformcontents scoped %}
-                        <!--TODO add edit button functionality-->
-                        {% endblock %}
+                        {{ formcontents(db_item) }}
                     </div>
                 </div>
                 <div class="modal-footer">
