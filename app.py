@@ -72,7 +72,7 @@ def jobs():
                                   request.form["desc"],
                                   active_months,
                                   request.form["id"])
-            dbc.update_client(job)
+            dbc.update_job(job)
     return render_template("maintenance.html", data=dbc.load_sql_job_data(), month_list=months)
 
 
