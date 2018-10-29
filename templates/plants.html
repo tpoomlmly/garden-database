@@ -3,6 +3,7 @@
 {% set pagetype = "plant" %}
 
 {% macro formcontents(plant=None) %}
+<!--suppress HtmlUnknownAttribute -->
 <div class="form-group row">
     <label class="control-label" for="name">Name:</label>
     <input type="text" class="form-control" id="name" name="name" placeholder="Enter plant name"
@@ -18,6 +19,18 @@
     <input type="text" class="form-control" id="blooming-period" name="blooming-period" placeholder="Enter blooming period"
         value="{% if plant is not none %}{{ plant.blooming_period }}{% endif %}">
 </div>
+<div class="form-group row">
+    {% for job in job_list %}
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input"
+                   id="{% if plant is not none %}edit-{{ plant.id }}-{% endif %}{{ job.id }}"
+                   name="job-{{ job.id }}" {% if plant is not none and job in plant.jobs %}checked{% endif %}>
+            <label class="custom-control-label" for="{% if plant is not none %}edit-{{ plant.id }}-{% endif %}{{ job.id }}">{{ job.name }}</label>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endmacro %}
 
 {% block thead %}
@@ -25,6 +38,7 @@
 <th scope="col">Name</th>
 <th scope="col">Latin name</th>
 <th scope="col">Blooming period</th>
+<th scope="col">Maintenance</th>
 <th scope="col" style="width: 80px"></th>
 {% endblock %}
 
@@ -35,6 +49,7 @@
     <th scope="row">{{ plant.name }}</th>
     <td>{{ plant.latin_name }}</td>
     <td>{{ plant.blooming_period }}</td>
+    <td>{{ ', '.join(plant.jobs) }}</td>
     <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal"
                 id="edit-plant-{{ plant.id }}" data-target="#popup-div-edit-{{ plant.id }}">Edit</button></td>
 </tr>

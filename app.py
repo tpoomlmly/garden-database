@@ -28,7 +28,8 @@ def clients():
         elif "edit" in request.form:
             client = dbc.Client(request.form["name"], request.form["id"])
             dbc.update_client(client)
-    return render_template("clients.html", data=dbc.load_sql_client_data())
+    return render_template("clients.html", data=dbc.load_sql_client_data(),
+                           plant_list=[{"id": plant.id, "name": plant.name} for plant in dbc.load_sql_plant_data()])
 
 
 @app.route("/plants", methods=["GET", "POST"])
@@ -36,20 +37,28 @@ def plants():
     # TODO add maintenance linking support to the form and backend
     # TODO add sensible way to handle blooming period (perhaps month selection again?)
     if request.method == "POST":
+        print(request.form)
+        mids_to_link = [field[4:] for field in request.form.keys() if field[:2] == "job"]
         if "delete" in request.form:
             dbc.drop_plant(request.form["id"])
+
         elif "add" in request.form:
             plant = dbc.Plant(request.form["name"],
                               request.form["latin-name"],
-                              request.form["blooming-period"])
+                              request.form["blooming-period"],
+                              jobs=jobs_to_link)
             dbc.insert_plant(plant)
+
         elif "edit" in request.form:
             plant = dbc.Plant(request.form["name"],
                               request.form["latin-name"],
                               request.form["blooming-period"],
-                              request.form["id"])
+                              pid=request.form["id"],
+                              jobs=mids_to_link)
             dbc.update_plant(plant)
-    return render_template("plants.html", data=dbc.load_sql_plant_data())
+
+    return render_template("plants.html", data=dbc.load_sql_plant_data(),
+                           job_list=[{"id": job.id, "name": job.name} for job in dbc.load_sql_job_data()])
 
 
 @app.route("/maintenance", methods=["GET", "POST"])
