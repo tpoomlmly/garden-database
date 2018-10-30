@@ -2,7 +2,6 @@ import sqlite3 as sql
 
 
 # TODO normalise to 3rd normal form
-# TODO put all functions into classes
 class DBConnection:
     def __init__(self):
         self.dbname = "database.db"
@@ -46,12 +45,121 @@ class DBConnection:
     def fetchall(self):
         return self.cur.fetchall()
 
+    def select_clients(self, cid=None):
+        if cid is not None:
+            self.execute("SELECT * FROM clients WHERE cid=?", (cid,))
+        else:
+            self.execute("SELECT * FROM clients")
+        return self.fetchall()
+
+    def select_plants(self, pid=None):
+        if pid is not None:
+            self.execute("SELECT * FROM plants WHERE pid=?", (pid,))
+        else:
+            self.execute("SELECT * FROM plants")
+        return self.fetchall()
+
+    def select_jobs(self, mid=None):
+        if mid is not None:
+            self.execute("SELECT * FROM jobs WHERE mid=?", (mid,))
+        else:
+            self.execute("SELECT * FROM jobs")
+        return self.fetchall()
+
+    def drop_client(self, cid):
+        self.delete_pc_links(cid=cid)
+        self.execute("DELETE FROM clients WHERE cid=?", (cid,))
+
+    def drop_plant(self, pid):
+        self.delete_pc_links(pid=pid)
+        self.delete_jp_links(pid=pid)
+        self.execute("DELETE FROM plants WHERE pid=?", (pid,))
+
+    def drop_job(self, mid):
+        self.delete_jp_links(mid=mid)
+        self.execute("DELETE FROM jobs WHERE mid=?", (mid,))
+
+    def load_sql_client_data(self, cid=None):
+        return [Client(row[1], cid=row[0],
+                       plants=self.select_pc_links(cid=cid)) for row in self.select_clients(cid)]
+
+    def load_sql_plant_data(self, pid=None):
+        return [Plant(row[1], row[2], row[3], pid=row[0],
+                      jobs=self.select_jp_links(pid=row[0])) for row in self.select_plants(pid)]
+
+    def load_sql_job_data(self, mid=None):
+        return [Maintenance(row[1], row[2], eval(row[3]), row[0]) for row in self.select_jobs(mid)]
+
+    def select_pc_links(self, cid=None, pid=None):
+        if (cid and pid) is not None:
+            self.execute("SELECT * FROM client_plant_junction WHERE cid=? AND pid=?", (cid, pid))
+            return self.fetchall()[0]
+        elif cid is not None:
+            self.execute("SELECT * FROM client_plant_junction WHERE cid=?", (cid,))
+        elif pid is not None:
+            self.execute("SELECT * FROM client_plant_junction WHERE pid=?", (pid,))
+        else:
+            self.execute("SELECT * FROM client_plant_junction")
+        return [row[0] for row in self.fetchall()]
+
+    def select_jp_links(self, pid=None, mid=None):
+        if (pid and mid) is not None:
+            self.execute("SELECT * FROM plant_job_junction WHERE pid=? AND mid=?", (pid, mid))
+            return self.fetchall()[0]
+        elif pid is not None:
+            self.execute("SELECT * FROM plant_job_junction WHERE pid=?", (pid,))
+        elif mid is not None:
+            self.execute("SELECT * FROM plant_job_junction WHERE mid=?", (mid,))
+        else:
+            self.execute("SELECT * FROM plant_job_junction")
+        return [row[0] for row in self.fetchall()]
+
+    def link_plant_to_client(self, cid, pid):
+        self.execute("INSERT INTO client_plant_junction (cid,pid) VALUES (?,?)", (cid, pid))
+
+    def link_job_to_plant(self, pid, mid):
+        self.execute("INSERT INTO plant_job_junction (pid, mid) VALUES (?,?)", (pid, mid))
+
+    def delete_pc_links(self, cid=None, pid=None):
+        if (cid and pid) is not None:
+            self.execute("DELETE FROM client_plant_junction WHERE cid=? AND pid=?", (cid, pid))
+        elif cid is not None:
+            self.execute("DELETE FROM client_plant_junction WHERE cid=?", (cid,))
+        elif pid is not None:
+            self.execute("DELETE FROM client_plant_junction WHERE pid=?", (pid,))
+
+    def delete_jp_links(self, pid=None, mid=None):
+        if (pid and mid) is not None:
+            self.execute("DELETE FROM plant_job_junction WHERE pid=? AND mid=?", (pid, mid))
+        elif pid is not None:
+            self.execute("DELETE FROM plant_job_junction WHERE pid=?", (pid,))
+        elif mid is not None:
+            self.execute("DELETE FROM plant_job_junction WHERE mid=?", (mid,))
+
 
 class Client:
     def __init__(self, name, cid=None, plants=None):
         self.id = cid or -1
         self.name = name
         self.plants = plants or []
+
+    def insert(self):
+        with DBConnection() as c:
+            c.execute("INSERT INTO clients (name) VALUES (?)",
+                      (self.name,))
+            for pid in self.plants:
+                c.execute("SELECT last_insert_rowid()")
+                cid = c.fetchall()[0][0]
+                c.link_plant_to_client(cid=cid, pid=pid)
+
+    def update(self):
+        with DBConnection() as c:
+            c.execute("UPDATE selfs "
+                      "SET name=? WHERE cid=?",
+                      (self.name, self.id))
+            c.delete_pc_links(cid=self.id)
+            for pid in self.plants:
+                c.link_plant_to_client(cid=self.id, pid=pid)
 
 
 class Plant:
@@ -62,6 +170,25 @@ class Plant:
         self.blooming_period = blooming_period
         self.jobs = jobs or []
 
+    def insert(self):
+        with DBConnection() as c:
+            c.execute("INSERT INTO plants (name,latin_name,blooming_period) VALUES (?,?,?)",
+                      (self.name, self.latin_name, self.blooming_period))
+            for mid in self.jobs:
+                c.execute("SELECT last_insert_rowid()")
+                pid = c.fetchall()[0][0]
+                c.link_job_to_plant(pid=pid, mid=mid)
+
+    def update(self):
+        with DBConnection() as c:
+            c.execute("UPDATE selfs "
+                      "SET name=?, latin_name=?, blooming_period=? "
+                      "WHERE pid=?",
+                      (self.name, self.latin_name, self.blooming_period, self.id))
+            c.delete_jp_links(pid=self.id)
+            for mid in self.jobs:
+                c.link_job_to_plant(pid=self.id, mid=mid)
+
 
 class Maintenance:
     def __init__(self, name, description, months, mid=None):
@@ -70,186 +197,13 @@ class Maintenance:
         self.description = description
         self.months = months
 
+    def insert(self):
+        with DBConnection() as c:
+            c.execute("INSERT INTO jobs (name,description,months) VALUES (?,?,?)",
+                      (self.name, self.description, repr(self.months)))
 
-###############################################
-# Plants
-###############################################
-def insert_plant(plant):
-    with DBConnection() as c:
-        c.execute("INSERT INTO plants (name,latin_name,blooming_period) VALUES (?,?,?)",
-                  (plant.name, plant.latin_name, plant.blooming_period))
-        for mid in plant.jobs:
-            c.execute("SELECT last_insert_rowid()")
-            pid = c.fetchall()[0][0]
-            link_job_to_plant(pid=pid, mid=mid)
-
-
-def drop_plant(pid):
-    delete_pc_links(pid=pid)
-    delete_jp_links(pid=pid)
-    with DBConnection() as c:
-        c.execute("DELETE FROM plants WHERE pid=?", (pid,))
-
-
-def update_plant(plant):
-    with DBConnection() as c:
-        c.execute("UPDATE plants "
-                  "SET name=?, latin_name=?, blooming_period=? "
-                  "WHERE pid=?",
-                  (plant.name, plant.latin_name, plant.blooming_period, plant.id))
-    delete_jp_links(pid=plant.id)
-    for mid in plant.jobs:
-        link_job_to_plant(pid=plant.id, mid=mid)
-
-
-def select_plants(pid=None):
-    with DBConnection() as c:
-        if pid is not None:
-            c.execute("SELECT * FROM plants WHERE pid=?", (pid,))
-        else:
-            c.execute("SELECT * FROM plants")
-        return c.fetchall()
-
-
-def load_sql_plant_data(pid=None):
-    return [Plant(row[1], row[2], row[3], pid=row[0],
-                  jobs=select_jp_links(pid=row[0])) for row in select_plants(pid)]
-
-
-###############################################
-# Clients
-###############################################
-def insert_client(client):
-    with DBConnection() as c:
-        c.execute("INSERT INTO clients (name) VALUES (?)",
-                  (client.name,))
-        for pid in client.plants:
-            c.execute("SELECT last_insert_rowid()")
-            cid = c.fetchall()[0][0]
-            link_plant_to_client(cid=cid, pid=pid)
-
-
-def drop_client(cid):
-    delete_pc_links(cid=cid)
-    with DBConnection() as c:
-        c.execute("DELETE FROM clients WHERE cid=?", (cid,))
-
-
-def update_client(client):
-    with DBConnection() as c:
-        c.execute("UPDATE clients "
-                  "SET name=? WHERE cid=?",
-                  (client.name, client.id))
-    delete_pc_links(cid=client.id)
-    for pid in client.plants:
-        link_plant_to_client(cid=client.id, pid=pid)
-
-
-def select_clients(cid=None):
-    with DBConnection() as c:
-        if cid is not None:
-            c.execute("SELECT * FROM clients WHERE cid=?", (cid,))
-        else:
-            c.execute("SELECT * FROM clients")
-        return c.fetchall()
-
-
-def load_sql_client_data(cid=None):
-    return [Client(row[1], cid=row[0],
-                   plants=select_pc_links(cid=cid)) for row in select_clients(cid)]
-
-
-###############################################
-# Maintenance jobs
-###############################################
-def insert_job(job):
-    with DBConnection() as c:
-        c.execute("INSERT INTO jobs (name,description,months) VALUES (?,?,?)",
-                  (job.name, job.description, repr(job.months)))
-
-
-def drop_job(mid):
-    delete_jp_links(mid=mid)
-    with DBConnection() as c:
-        c.execute("DELETE FROM jobs WHERE mid=?", (mid,))
-
-
-def update_job(job):
-    with DBConnection() as c:
-        c.execute("UPDATE jobs "
-                  "SET name=?, description=?, months=? WHERE mid=?",
-                  (job.name, job.description, repr(job.months), job.id))
-
-
-def select_jobs(mid=None):
-    with DBConnection() as c:
-        if mid is not None:
-            c.execute("SELECT * FROM jobs WHERE mid=?", (mid,))
-        else:
-            c.execute("SELECT * FROM jobs")
-        return c.fetchall()
-
-
-def load_sql_job_data(mid=None):
-    return [Maintenance(row[1], row[2], eval(row[3]), row[0]) for row in select_jobs(mid)]
-
-
-###############################################
-# Junction tables
-###############################################
-def link_plant_to_client(cid, pid):
-    with DBConnection() as c:
-        c.execute("INSERT INTO client_plant_junction (cid,pid) VALUES (?,?)", (cid, pid))
-
-
-def delete_pc_links(cid=None, pid=None):
-    with DBConnection() as c:
-        if (cid and pid) is not None:
-            c.execute("DELETE FROM client_plant_junction WHERE cid=? AND pid=?", (cid, pid))
-        elif cid is not None:
-            c.execute("DELETE FROM client_plant_junction WHERE cid=?", (cid,))
-        elif pid is not None:
-            c.execute("DELETE FROM client_plant_junction WHERE pid=?", (pid,))
-
-
-def select_pc_links(cid=None, pid=None):
-    with DBConnection() as c:
-        if (cid and pid) is not None:
-            c.execute("SELECT * FROM client_plant_junction WHERE cid=? AND pid=?", (cid, pid))
-            return c.fetchall()[0]
-        elif cid is not None:
-            c.execute("SELECT * FROM client_plant_junction WHERE cid=?", (cid,))
-        elif pid is not None:
-            c.execute("SELECT * FROM client_plant_junction WHERE pid=?", (pid,))
-        else:
-            c.execute("SELECT * FROM client_plant_junction")
-    return [row[0] for row in c.fetchall()]
-
-
-def link_job_to_plant(pid, mid):
-    with DBConnection() as c:
-        c.execute("INSERT INTO plant_job_junction (pid, mid) VALUES (?,?)", (pid, mid))
-
-
-def delete_jp_links(pid=None, mid=None):
-    with DBConnection() as c:
-        if (pid and mid) is not None:
-            c.execute("DELETE FROM plant_job_junction WHERE pid=? AND mid=?", (pid, mid))
-        elif pid is not None:
-            c.execute("DELETE FROM plant_job_junction WHERE pid=?", (pid,))
-        elif mid is not None:
-            c.execute("DELETE FROM plant_job_junction WHERE mid=?", (mid,))
-
-
-def select_jp_links(pid=None, mid=None):
-    with DBConnection() as c:
-        if (pid and mid) is not None:
-            c.execute("SELECT * FROM plant_job_junction WHERE pid=? AND mid=?", (pid, mid))
-            return c.fetchall()[0]
-        elif pid is not None:
-            c.execute("SELECT * FROM plant_job_junction WHERE pid=?", (pid,))
-        elif mid is not None:
-            c.execute("SELECT * FROM plant_job_junction WHERE mid=?", (mid,))
-        else:
-            c.execute("SELECT * FROM plant_job_junction")
-    return [row[0] for row in c.fetchall()]
+    def update(self):
+        with DBConnection() as c:
+            c.execute("UPDATE jobs "
+                      "SET name=?, description=?, months=? WHERE mid=?",
+                      (self.name, self.description, repr(self.months), self.id))
