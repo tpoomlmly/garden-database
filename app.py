@@ -61,8 +61,8 @@ def plants():
                                   pid=request.form["id"],
                                   jobs=mids_to_link)
                 plant.update()
-            return render_template("plants.html", data=c.load_sql_plant_data(),
-                                   job_list=[{"id": job.id, "name": job.name} for job in c.load_sql_job_data()])
+        return render_template("plants.html", data=c.load_sql_plant_data(),
+                               job_list=[{"id": job.id, "name": job.name} for job in c.load_sql_job_data()])
 
 
 @app.route("/maintenance", methods=["GET", "POST"])
