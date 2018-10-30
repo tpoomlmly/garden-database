@@ -46,7 +46,7 @@ def plants():
             plant = dbc.Plant(request.form["name"],
                               request.form["latin-name"],
                               request.form["blooming-period"],
-                              jobs=jobs_to_link)
+                              jobs=mids_to_link)
             dbc.insert_plant(plant)
 
         elif "edit" in request.form:
