@@ -1,4 +1,5 @@
 import sqlite3 as sql
+import util
 
 
 class DBConnection:
@@ -219,7 +220,7 @@ class Maintenance:
         self.id = mid or -1
         self.name = name
         self.description = description
-        self.months = months
+        self.months = sorted(months, key=util.dt_from_month)
 
     def insert(self):
         with DBConnection() as c:
