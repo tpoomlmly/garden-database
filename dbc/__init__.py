@@ -1,7 +1,6 @@
 import sqlite3 as sql
 
 
-# TODO normalise to 3rd normal form
 class DBConnection:
     def __init__(self):
         self.dbname = "tests.db"
@@ -11,26 +10,26 @@ class DBConnection:
     def __enter__(self):
         self.con = sql.connect(self.dbname)
         self.cur = self.con.cursor()
-        self.execute("PRAGMA foreign_keys = ON;")
+        self.perform("PRAGMA foreign_keys = ON;")
         
-        self.execute("CREATE TABLE IF NOT EXISTS clients "
+        self.perform("CREATE TABLE IF NOT EXISTS clients "
                      "(cid INTEGER PRIMARY KEY, name TEXT NOT NULL);")
 
-        self.execute("CREATE TABLE IF NOT EXISTS plants "
+        self.perform("CREATE TABLE IF NOT EXISTS plants "
                      "(pid INTEGER PRIMARY KEY, name TEXT, latin_name TEXT UNIQUE, "
                      "blooming_period TEXT);")
 
-        self.execute("CREATE TABLE IF NOT EXISTS jobs "
+        self.perform("CREATE TABLE IF NOT EXISTS jobs "
                      "(mid INTEGER PRIMARY KEY, name TEXT, description TEXT);")
 
-        self.execute("CREATE TABLE IF NOT EXISTS months "
+        self.perform("CREATE TABLE IF NOT EXISTS months "
                      "(mid INTEGER REFERENCES jobs, month TEXT, PRIMARY KEY(mid, month));")
 
-        self.execute("CREATE TABLE IF NOT EXISTS client_plant_junction "
+        self.perform("CREATE TABLE IF NOT EXISTS client_plant_junction "
                      "(cid INTEGER REFERENCES clients, pid INTEGER REFERENCES plants, "
                      "PRIMARY KEY(cid, pid));")
 
-        self.execute("CREATE TABLE IF NOT EXISTS plant_job_junction "
+        self.perform("CREATE TABLE IF NOT EXISTS plant_job_junction "
                      "(pid INTEGER REFERENCES plants, mid INTEGER REFERENCES jobs, "
                      "PRIMARY KEY(pid ,mid));")
         return self
@@ -42,6 +41,10 @@ class DBConnection:
         self.cur = None
 
     def execute(self, *args):
+        self.cur.execute(*args)
+        self.con.commit()
+
+    def perform(self, *args):
         self.cur.execute(*args)
 
     def fetchall(self):
@@ -170,8 +173,8 @@ class Client:
                       (self.name,))
             for pid in self.plants:
                 c.execute("SELECT last_insert_rowid()")
-                cid = c.fetchall()[0][0]
-                c.link_plant_to_client(cid=cid, pid=pid)
+                self.id = c.fetchall()[0][0]
+                c.link_plant_to_client(cid=self.id, pid=pid)
 
     def update(self):
         with DBConnection() as c:
@@ -197,8 +200,8 @@ class Plant:
                       (self.name, self.latin_name, self.blooming_period))
             for mid in self.jobs:
                 c.execute("SELECT last_insert_rowid()")
-                pid = c.fetchall()[0][0]
-                c.link_job_to_plant(pid=pid, mid=mid)
+                self.id = c.fetchall()[0][0]
+                c.link_job_to_plant(pid=self.id, mid=mid)
 
     def update(self):
         with DBConnection() as c:
@@ -222,6 +225,8 @@ class Maintenance:
         with DBConnection() as c:
             c.execute("INSERT INTO jobs (name,description) VALUES (?,?)",
                       (self.name, self.description))
+            c.execute("SELECT last_insert_rowid()")
+            self.id = c.fetchall()[0][0]
             for month in self.months:
                 c.link_month_to_job(self.id, month)
 
