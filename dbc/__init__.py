@@ -88,43 +88,47 @@ class DBConnection:
 
     def load_sql_client_data(self, cid=None):
         return [Client(row[1], cid=row[0],
-                       plants=self.select_pc_links(cid=cid)) for row in self.select_clients(cid)]
+                       plants=self.select_pc_links(cid=row[0])) for row in self.select_clients(cid)]
 
     def load_sql_plant_data(self, pid=None):
         return [Plant(row[1], row[2], row[3], pid=row[0],
-                      jobs=self.select_jp_links(pid=row[0]))
-                for row in self.select_plants(pid)]
+                      jobs=self.select_jp_links(pid=row[0])) for row in self.select_plants(pid)]
 
     def load_sql_job_data(self, mid=None):
         return [Maintenance(row[1], row[2],
                             self.select_mj_links(row[0]), row[0]) for row in self.select_jobs(mid)]
 
     def select_pc_links(self, cid=None, pid=None):
-        if (cid and pid) is not None:
-            self.execute("SELECT * FROM client_plant_junction WHERE cid=? AND pid=?", (cid, pid))
-            return self.fetchall()[0]
-        elif cid is not None:
-            self.execute("SELECT pid FROM client_plant_junction WHERE cid=?", (cid,))
+        if cid is not None:
+            self.execute("SELECT plants.* FROM client_plant_junction "
+                         "INNER JOIN plants ON plants.pid=client_plant_junction.pid"
+                         "WHERE cid=?", (cid,))
+            return [Plant(row[1], row[2], row[3], pid=row[0],
+                          jobs=self.select_jp_links(pid=row[0])) for row in self.fetchall()]
         elif pid is not None:
-            self.execute("SELECT mid FROM client_plant_junction WHERE pid=?", (pid,))
+            self.execute("SELECT clients.* FROM client_plant_junction "
+                         "INNER JOIN clients ON clients.cid=client_plant_junction"
+                         "WHERE pid=?", (pid,))
+            return [Client(row[1], cid=row[0], plants=self.select_pc_links(cid=row[0])) for row in self.fetchall()]
         else:
             self.execute("SELECT * FROM client_plant_junction")
             return self.fetchall()
-        return [row[0] for row in self.fetchall()]
 
     def select_jp_links(self, pid=None, mid=None):
         if pid is not None:
             self.execute("SELECT jobs.* FROM plant_job_junction "
                          "INNER JOIN jobs ON jobs.mid=plant_job_junction.mid "
                          "WHERE pid=?", (pid,))
+            return [Maintenance(row[1], row[2], self.select_mj_links(row[0]), mid=row[0]) for row in self.fetchall()]
         elif mid is not None:
             self.execute("SELECT plants.* FROM plant_job_junction "
                          "INNER JOIN plants ON plants.pid=plant_job_juncion.mid "
                          "WHERE mid=?", (mid,))
+            return [Plant(row[1], row[2], row[3], pid=row[0],
+                          jobs=self.select_jp_links(pid=row[0])) for row in self.fetchall()]
         else:
             self.execute("SELECT * FROM plant_job_junction")
             return self.fetchall()
-        return [Maintenance(row[1], row[2], None, row[0]) for row in self.fetchall()]
 
     def select_mj_links(self, mid=None):
         if mid is None:
@@ -169,6 +173,7 @@ class Client:
         self.id = cid or -1
         self.name = name
         self.plants = plants or []
+        self.pids = [plant.id for plant in self.plants] if type(self.plants[0]) == Plant else self.plants
 
     def insert(self):
         with DBConnection() as c:
@@ -195,7 +200,7 @@ class Plant:
         self.latin_name = latin_name
         self.blooming_period = blooming_period
         self.jobs = jobs or []
-        self.mids = [job.id for job in jobs] if type(jobs[0]) == Maintenance else self.jobs
+        self.mids = [job.id for job in self.jobs] if type(self.jobs[0]) == Maintenance else self.jobs
 
     def insert(self):
         with DBConnection() as c:

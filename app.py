@@ -21,45 +21,39 @@ def clients():
     # TODO add plant linking support to the form and backend
     with dbc.DBConnection() as c:
         if request.method == "POST":
+            pids_to_link = [field[6:] for field in request.form.keys() if field[:5] == "plant"]
             if "delete" in request.form:
                 c.drop_client(request.form["id"])
 
             elif "add" in request.form:
-                client = dbc.Client(request.form["name"])
+                client = dbc.Client(request.form["name"], plants=pids_to_link)
                 client.insert()
 
             elif "edit" in request.form:
-                client = dbc.Client(request.form["name"], request.form["id"])
+                client = dbc.Client(request.form["name"], cid=request.form["id"], plants=pids_to_link)
                 client.update()
 
         return render_template("clients.html", data=c.load_sql_client_data(),
-                               plant_list=[{"id": plant.id, "name": plant.name} for plant in c.load_sql_plant_data()])
+                               plant_list=c.load_sql_plant_data())
 
 
 @app.route("/plants", methods=["GET", "POST"])
 def plants():
-    # TODO add maintenance linking support to the form and backend
     # TODO add sensible way to handle blooming period (perhaps month selection again?)
     with dbc.DBConnection() as c:
         if request.method == "POST":
-            print(request.form)
             mids_to_link = [field[4:] for field in request.form.keys() if field[:3] == "job"]
-            print(mids_to_link)
             if "delete" in request.form:
                 c.drop_plant(request.form["id"])
 
             elif "add" in request.form:
-                plant = dbc.Plant(request.form["name"],
-                                  request.form["latin-name"],
-                                  request.form["blooming-period"],
-                                  jobs=mids_to_link)
+                plant = dbc.Plant(request.form["name"], request.form["latin-name"],
+                                  request.form["blooming-period"], jobs=mids_to_link)
                 plant.insert()
 
             elif "edit" in request.form:
-                plant = dbc.Plant(request.form["name"],
-                                  request.form["latin-name"],
-                                  request.form["blooming-period"],
-                                  pid=request.form["id"],
+                plant = dbc.Plant(request.form["name"], request.form["latin-name"],
+                                  request.form["blooming-period"], pid=request.form["id"],
                                   jobs=mids_to_link)
                 plant.update()
         return render_template("plants.html", data=c.load_sql_plant_data(),
