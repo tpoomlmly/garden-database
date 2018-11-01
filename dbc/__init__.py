@@ -92,7 +92,8 @@ class DBConnection:
 
     def load_sql_plant_data(self, pid=None):
         return [Plant(row[1], row[2], row[3], pid=row[0],
-                      jobs=self.select_jp_links(pid=row[0])) for row in self.select_plants(pid)]
+                      jobs=self.select_jp_links(pid=row[0]))
+                for row in self.select_plants(pid)]
 
     def load_sql_job_data(self, mid=None):
         return [Maintenance(row[1], row[2],
@@ -112,17 +113,18 @@ class DBConnection:
         return [row[0] for row in self.fetchall()]
 
     def select_jp_links(self, pid=None, mid=None):
-        if (pid and mid) is not None:
-            self.execute("SELECT * FROM plant_job_junction WHERE pid=? AND mid=?", (pid, mid))
-            return self.fetchall()[0]
-        elif pid is not None:
-            self.execute("SELECT mid FROM plant_job_junction WHERE pid=?", (pid,))
+        if pid is not None:
+            self.execute("SELECT jobs.* FROM plant_job_junction "
+                         "INNER JOIN jobs ON jobs.mid=plant_job_junction.mid "
+                         "WHERE pid=?", (pid,))
         elif mid is not None:
-            self.execute("SELECT pid FROM plant_job_junction WHERE mid=?", (mid,))
+            self.execute("SELECT plants.* FROM plant_job_junction "
+                         "INNER JOIN plants ON plants.pid=plant_job_juncion.mid "
+                         "WHERE mid=?", (mid,))
         else:
             self.execute("SELECT * FROM plant_job_junction")
             return self.fetchall()
-        return [row[0] for row in self.fetchall()]
+        return [Maintenance(row[1], row[2], None, row[0]) for row in self.fetchall()]
 
     def select_mj_links(self, mid=None):
         if mid is None:
@@ -170,19 +172,18 @@ class Client:
 
     def insert(self):
         with DBConnection() as c:
-            c.execute("INSERT INTO clients (name) VALUES (?)",
-                      (self.name,))
+            c.execute("INSERT INTO clients (name) VALUES (?)", (self.name,))
+            c.execute("SELECT last_insert_rowid()")
+            self.id = c.fetchall()[0][0]
             for pid in self.plants:
-                c.execute("SELECT last_insert_rowid()")
-                self.id = c.fetchall()[0][0]
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
     def update(self):
         with DBConnection() as c:
-            c.execute("UPDATE selfs "
+            c.delete_pc_links(cid=self.id)
+            c.execute("UPDATE clients "
                       "SET name=? WHERE cid=?",
                       (self.name, self.id))
-            c.delete_pc_links(cid=self.id)
             for pid in self.plants:
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
@@ -199,18 +200,18 @@ class Plant:
         with DBConnection() as c:
             c.execute("INSERT INTO plants (name,latin_name,blooming_period) VALUES (?,?,?)",
                       (self.name, self.latin_name, self.blooming_period))
+            c.execute("SELECT last_insert_rowid()")
+            self.id = c.fetchall()[0][0]
             for mid in self.jobs:
-                c.execute("SELECT last_insert_rowid()")
-                self.id = c.fetchall()[0][0]
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
     def update(self):
         with DBConnection() as c:
-            c.execute("UPDATE selfs "
+            c.delete_jp_links(pid=self.id)
+            c.execute("UPDATE plants "
                       "SET name=?, latin_name=?, blooming_period=? "
                       "WHERE pid=?",
                       (self.name, self.latin_name, self.blooming_period, self.id))
-            c.delete_jp_links(pid=self.id)
             for mid in self.jobs:
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
@@ -218,9 +219,9 @@ class Plant:
 class Maintenance:
     def __init__(self, name, description, months, mid=None):
         self.id = mid or -1
-        self.name = name
-        self.description = description
-        self.months = sorted(months, key=util.dt_from_month)
+        self.name = name or ""
+        self.description = description or ""
+        self.months = sorted(months, key=util.dt_from_month) if months is not None else []
 
     def insert(self):
         with DBConnection() as c:

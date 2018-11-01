@@ -43,7 +43,8 @@ def plants():
     with dbc.DBConnection() as c:
         if request.method == "POST":
             print(request.form)
-            mids_to_link = [field[4:] for field in request.form.keys() if field[:2] == "job"]
+            mids_to_link = [field[4:] for field in request.form.keys() if field[:3] == "job"]
+            print(mids_to_link)
             if "delete" in request.form:
                 c.drop_plant(request.form["id"])
 
@@ -62,7 +63,7 @@ def plants():
                                   jobs=mids_to_link)
                 plant.update()
         return render_template("plants.html", data=c.load_sql_plant_data(),
-                               job_list=[{"id": job.id, "name": job.name} for job in c.load_sql_job_data()])
+                               job_list=c.load_sql_job_data())
 
 
 @app.route("/maintenance", methods=["GET", "POST"])
