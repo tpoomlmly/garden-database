@@ -195,6 +195,7 @@ class Plant:
         self.latin_name = latin_name
         self.blooming_period = blooming_period
         self.jobs = jobs or []
+        self.mids = [job.id for job in jobs] if type(jobs[0]) == Maintenance else self.jobs
 
     def insert(self):
         with DBConnection() as c:
