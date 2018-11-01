@@ -49,7 +49,6 @@
     <th scope="row">{{ plant.name }}</th>
     <td>{{ plant.latin_name }}</td>
     <td>{{ plant.blooming_period }}</td>
-    {# <td>{{ ', '.join(plant.jobs) }}</td> #}
     <td>{{ plant.jobs|map(attribute='name')|join(', ') }}</td>
     <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal"
                 id="edit-plant-{{ plant.id }}" data-target="#popup-div-edit-{{ plant.id }}">Edit</button></td>
