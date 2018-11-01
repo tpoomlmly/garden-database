@@ -101,7 +101,7 @@ class DBConnection:
     def select_pc_links(self, cid=None, pid=None):
         if cid is not None:
             self.execute("SELECT plants.* FROM client_plant_junction "
-                         "INNER JOIN plants ON plants.pid=client_plant_junction.pid"
+                         "INNER JOIN plants ON plants.pid=client_plant_junction.pid "
                          "WHERE cid=?", (cid,))
             return [Plant(row[1], row[2], row[3], pid=row[0],
                           jobs=self.select_jp_links(pid=row[0])) for row in self.fetchall()]

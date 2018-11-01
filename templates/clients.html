@@ -9,11 +9,24 @@
     <input type="text" class="form-control" id="name" name="name" placeholder="Enter client name"
         value="{% if client is not none %}{{ client.name }}{% endif %}">
 </div>
+<div class="form-group row">
+    {% for plant in plant_list %}
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input"
+                   id="{% if client is not none %}edit-{{ client.id }}-{% endif %}{{ plant.id }}"
+                   name="plant-{{ plant.id }}" {% if client is not none and plant.id in client.pids %}checked{% endif %}>
+            <label class="custom-control-label" for="{% if client is not none %}edit-{{ client.id }}-{% endif %}{{ plant.id }}">{{ plant.name }}</label>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endmacro %}
 
 {% block thead %}
 {{ super() }}
 <th scope="col">Client name</th>
+<th scope="col">Plants</th>
 <th scope="col" style="width: 80px"></th>
 {% endblock %}
 
@@ -22,6 +35,7 @@
 {% for client in data %}
 <tr>
     <th scope="row">{{ client.name }}</th>
+    <td>{{ client.plants|map(attribute='name')|join(', ') }}</td>
     <td><button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal"
                 id="edit-client-{{ client.id }}" data-target="#popup-div-edit-{{ client.id }}">Edit</button></td>
 </tr>
