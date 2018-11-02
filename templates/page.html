@@ -6,11 +6,11 @@
 {# Begin navbar. This is outside of the main container-fluid so that it fills the screen from edge to edge. #}
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <span class="navbar-brand">Garden-db</span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-content">
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse">
+    <div class="collapse navbar-collapse" id="nav-content">
         <div class="navbar-nav">
             <a class="nav-item nav-link" href="{{ url_for('clients') }}">Clients</a>
             <a class="nav-item nav-link" href="{{ url_for('plants') }}">Plants</a>
@@ -31,21 +31,25 @@
     {# End page title header #}
 
     {# Begin extra exclusive content #}
-        {% block extras %}
-        {% endblock %}
+    {% block extras %}
+    {% endblock %}
     {# End extra exclusive content #}
 
     {# Begin data table #}
-    <table class="table table-striped">
-        <thead class="thead-dark">
-            {% block thead %}
-            {% endblock %}
-        </thead>
-        <tbody>
-            {% block tbody %}
-            {% endblock %}
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    {% block thead %}
+                    {% endblock %}
+                </thead>
+                <tbody>
+                    {% block tbody %}
+                    {% endblock %}
+                </tbody>
+            </table>
+        </div>
+    </div>
     {# End data table #}
 
     {# Begin modal toggle button #}
@@ -55,6 +59,8 @@
     {# End modal toggle button #}
 </div>
 {# End main page content #}
+
+
 
 <div id="popup-div-add" class="modal fade">
     <div class="modal-dialog modal-dialog-centered">
