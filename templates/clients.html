@@ -2,6 +2,27 @@
 {% set title = "Clients" %}
 {% set pagetype = "client" %}
 
+{% block extras %}
+<div class="row">
+    <div class="col">
+        <div class="btn-group d-flex mb-2" role="group">
+            {% for client in data %}
+            <button type="button" class="btn btn-primary w-100">{{ client.name }}</button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="btn-group d-flex mb-2" role="group">
+            {% for month in months %}
+            <button type="button" class="btn btn-primary w-100">{{ month }}</button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% macro formcontents(client=None) %}
 <!--suppress HtmlUnknownAttribute -->
 <div class="form-group row">
