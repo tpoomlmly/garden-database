@@ -4,7 +4,7 @@ import util
 import dbc
 import os
 
-# TODO use flash() to add invalid form detection including non-unique latin names
+# TODO use flash() to add invalid form detection including non-unique latin names and invalid months
 app = Flask(__name__)
 sslify = SSLify(app=app, permanent=True)
 months = ["January", "February", "March", "April", "May", "June", "July",
@@ -34,7 +34,7 @@ def clients():
                 client.update()
 
         return render_template("clients.html", data=c.load_sql_client_data(),
-                               plant_list=c.load_sql_plant_data())
+                               plant_list=c.load_sql_plant_data(), months=months)
 
 
 @app.route("/plants", methods=["GET", "POST"])
