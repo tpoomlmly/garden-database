@@ -3,20 +3,25 @@
 {% set pagetype = "client" %}
 
 {% block extras %}
+{# data selection #}
 <div class="row">
     <div class="col">
-        <div class="btn-group d-flex mb-2" role="group">
+        <div class="btn-group btn-group-toggle d-flex mb-1" role="group" data-toggle="buttons">
             {% for client in data %}
-            <button type="button" class="btn btn-primary w-100">{{ client.name }}</button>
+            <label class="btn btn-primary w-100">
+                <input type="radio" id="client-{{ client.id }}" autocomplete="off">{{ client.name }}
+            </label>
             {% endfor %}
         </div>
     </div>
 </div>
 <div class="row">
     <div class="col">
-        <div class="btn-group d-flex mb-2" role="group">
+        <div class="btn-group btn-group-toggle d-flex mb-2" role="group" data-toggle="buttons">
             {% for month in months %}
-            <button type="button" class="btn btn-primary w-100">{{ month }}</button>
+            <label class="btn btn-primary w-100">
+                <input type="radio" id="{{ month }}" autocomplete="off">{{ month }}
+            </label>
             {% endfor %}
         </div>
     </div>
