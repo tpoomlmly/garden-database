@@ -24,9 +24,16 @@
 <div class="container-fluid">
     {# Begin page title header #}
     <header class="row">
-        <div class="col">
-            <h1>{% if title %}{{ title }}{% else %}Untitled page{% endif %}</h1>
+        <div class="col col-9 col-sm-10">
+            <h1>{{ title }}</h1>
         </div>
+        {% if pagetype == "client" %}
+        <div class="col col-3 col-sm-2 align-self-center">
+            <div class="float-right">
+                <button type="button" class="btn btn-info" onclick="print();"><i class="fas fa-print"></i></button>
+            </div>
+        </div>
+        {% endif %}
     </header>
     {# End page title header #}
 
