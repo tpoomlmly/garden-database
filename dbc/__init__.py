@@ -2,9 +2,10 @@ import sqlite3 as sql
 import util
 
 
+# TODO add docstrings to methods
 class DBConnection:
     def __init__(self):
-        self.dbname = "tests.db"
+        self.dbname = "database.db"
         self.con = None
         self.cur = None
 
@@ -138,6 +139,16 @@ class DBConnection:
             self.execute("SELECT month FROM months WHERE mid=?", (mid,))
         return [row[0] for row in self.fetchall()]
 
+    def select_months_of_plant(self, pid):
+        self.execute("SELECT DISTINCT month from plants "
+                     "INNER JOIN plant_job_junction "
+                     "ON plants.pid=plant_job_junction.pid "
+                     "INNER JOIN jobs "
+                     "ON plant_job_junction.mid=jobs.mid "
+                     "INNER JOIN months ON jobs.mid=months.mid "
+                     "WHERE plants.pid=?", (pid,))
+        return [row[0] for row in self.fetchall()]
+
     def link_plant_to_client(self, cid, pid):
         self.execute("INSERT INTO client_plant_junction (cid,pid) VALUES (?,?)", (cid, pid))
 
@@ -180,7 +191,7 @@ class Client:
             c.execute("INSERT INTO clients (name) VALUES (?)", (self.name,))
             c.execute("SELECT last_insert_rowid()")
             self.id = c.fetchall()[0][0]
-            for pid in self.plants:
+            for pid in self.pids:
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
     def update(self):
@@ -189,7 +200,7 @@ class Client:
             c.execute("UPDATE clients "
                       "SET name=? WHERE cid=?",
                       (self.name, self.id))
-            for pid in self.plants:
+            for pid in self.pids:
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
 
@@ -201,6 +212,8 @@ class Plant:
         self.blooming_period = blooming_period
         self.jobs = jobs or []
         self.mids = [job.id for job in self.jobs] if type(self.jobs[0]) == Maintenance else self.jobs
+        with DBConnection() as c:
+            self.months = c.select_months_of_plant(self.id)
 
     def insert(self):
         with DBConnection() as c:
@@ -208,7 +221,7 @@ class Plant:
                       (self.name, self.latin_name, self.blooming_period))
             c.execute("SELECT last_insert_rowid()")
             self.id = c.fetchall()[0][0]
-            for mid in self.jobs:
+            for mid in self.mids:
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
     def update(self):
@@ -218,7 +231,7 @@ class Plant:
                       "SET name=?, latin_name=?, blooming_period=? "
                       "WHERE pid=?",
                       (self.name, self.latin_name, self.blooming_period, self.id))
-            for mid in self.jobs:
+            for mid in self.mids:
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
 
