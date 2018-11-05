@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, flash
 from flask_sslify import SSLify
 import util
 import dbc
@@ -18,7 +18,6 @@ def index():
 
 @app.route("/clients", methods=["GET", "POST"])
 def clients():
-    # TODO add plant linking support to the form and backend
     with dbc.DBConnection() as c:
         if request.method == "POST":
             pids_to_link = [field[6:] for field in request.form.keys() if field[:5] == "plant"]
