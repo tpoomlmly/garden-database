@@ -3,6 +3,7 @@
 {% set pagetype = "client" %}
 
 {% block extras %}
+{{ super() }}
 {# data selection #}
 <div class="row">
     <div class="col">
@@ -15,15 +16,53 @@
         </div>
     </div>
 </div>
-<div class="row">
+
+{# data printouts per client #}
+<div class="row mb-2">
     <div class="col">
-        <div class="btn-group btn-group-toggle d-flex mb-2" role="group" data-toggle="buttons">
+        <div class="accordion" id="month-accordion">
             {% for month in months %}
-            <label class="btn btn-primary w-100">
-                <input type="radio" id="{{ month }}" autocomplete="off">{{ month }}
-            </label>
+            <div class="card border-0 bg-light rounded">
+                <div id="collapse-{{ month }}" class="collapse" data-parent="#month-accordion">
+                    <div class="card-body">
+                        <div class="accordion" id="client-accordion-{{ month }}">
+                            <div class="card border-0 bg-light">
+                                <div class="collapse show" data-parent="#client-accordion-{{ month }}">
+                                    <div class="card-body p-0">
+                                        <span class="text-muted">Please select a client</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% for client in data %}
+                            <div class="card border-0 bg-light">
+                                <div id="collapse-{{ client.id }}" class="collapse" data-parent="#client-accordion-{{ month }}">
+                                    <div class="card-body p-0">
+                                        <h2>{{ client.name }} - {{ month }}</h2>
+                                        {% for plant in client.plants %}
+                                        {% if month in plant.months %}
+                                        <h3>{{ plant.name }}</h3>
+                                        {% endif %}
+                                        {% for job in plant.jobs %}
+                                        {% if month in job.months %}
+                                        <p><strong>{{ job.name }}: </strong>{{ job.description }}</p>
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <hr class="mt-0">
     </div>
 </div>
 {% endblock %}
