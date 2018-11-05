@@ -62,10 +62,10 @@
                             <div class="card border-0 bg-light">
                                 <div id="collapse-{{ client.id }}" class="collapse" data-parent="#client-accordion-{{ month }}">
                                     <div class="card-body p-0">
-                                        <h2>{{ client.name }} - {{ month }}</h2>
+                                        <h2 class="text-success">{{ client.name }} - {{ month }}</h2>
                                         {% for plant in client.plants %}
                                         {% if month in plant.months %}
-                                        <h3>{{ plant.name }}</h3>
+                                        <h3 class="text-info">{{ plant.name }}</h3>
                                         {% endif %}
                                         {% for job in plant.jobs %}
                                         {% if month in job.months %}
