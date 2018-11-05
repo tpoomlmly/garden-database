@@ -5,14 +5,39 @@
 {% block extras %}
 {{ super() }}
 {# data selection #}
-<div class="row">
-    <div class="col">
-        <div class="btn-group btn-group-toggle d-flex mb-1" role="group" data-toggle="buttons">
-            {% for client in data %}
-            <label class="btn btn-primary w-100">
-                <input type="radio" id="client-{{ client.id }}" autocomplete="off">{{ client.name }}
-            </label>
+<div class="row mt-3 justify-content-start">
+    <div class="col col-auto mb-2 pr-0 order-first">
+        <div class="btn-group">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                Select a client
+            </button>
+            <div class="dropdown-menu">
+                {% for client in data %}
+                <button type="button" data-toggle="collapse" class="dropdown-item" data-target="#collapse-{{ client.id }}">{{ client.name }}</button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col mb-2 order-lg-last order-xl-6">
+        <div class="btn-group d-none d-lg-inline-flex">
+            {% for month in months %}
+            <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapse-{{ month }}">{{ month }}</button>
             {% endfor %}
+        </div>
+        <div class="btn-group d-inline-flex d-lg-none">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                Select a month
+            </button>
+            <div class="dropdown-menu">
+                {% for month in months %}
+                <button type="button" data-toggle="collapse" class="dropdown-item" data-target="#collapse-{{ month }}">{{ month }}</button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col col-xl-auto mb-2 align-self-center order-lg-6 order-xl-last">
+        <div class="float-right">
+            <button type="button" class="btn btn-info" onclick="print();"><i class="fas fa-print"></i></button>
         </div>
     </div>
 </div>
