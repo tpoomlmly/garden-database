@@ -23,7 +23,7 @@
 {# Begin main page content #}
 <div class="container-fluid">
     {# Begin page title header #}
-    <header class="row justify-content-start">
+    <header class="row justify-content-start d-print-none">
         <div class="col col-4 col-sm-3">
             <h1>{{ title }}</h1>
         </div>
@@ -47,7 +47,7 @@
     {# End extra exclusive content #}
 
     {# Begin data table #}
-    <div class="row">
+    <div class="row{% if pagetype == 'client' %} d-print-none{% endif %}">
         <div class="col">
             <table class="table table-striped">
                 <thead class="thead-dark">
@@ -64,7 +64,7 @@
     {# End data table #}
 
     {# Begin modal toggle button #}
-    <button type="button" id="popup-btn" class="btn btn-info" data-toggle="modal" data-target="#popup-div-add">
+    <button type="button" id="popup-btn" class="btn btn-info d-print-none" data-toggle="modal" data-target="#popup-div-add">
         Add a new {{ pagetype }}
     </button>
     {# End modal toggle button #}
