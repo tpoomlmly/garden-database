@@ -1,5 +1,5 @@
 import sqlite3 as sql
-import util
+import sorting
 
 
 # TODO add docstrings to methods
@@ -240,7 +240,7 @@ class Maintenance:
         self.id = mid or -1
         self.name = name or ""
         self.description = description or ""
-        self.months = sorted(months, key=util.dt_from_month) if months is not None else []
+        self.months = sorted(months, key=sorting.dt_from_month) if months is not None else []
 
     def insert(self):
         with DBConnection() as c:

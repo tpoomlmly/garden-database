@@ -1,6 +1,6 @@
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, flash
 from flask_sslify import SSLify
-import util
+import sorting
 import dbc
 import os
 
@@ -70,14 +70,14 @@ def jobs():
                 # & is the intersection operator. set() converts the dict_keyiterator and list to sets so that the
                 # intersection can be found of them. list() converts this back to a list which is sorted on the
                 # basis that each item in the new list is the name of a month.
-                active_months = sorted(list(set(request.form) & set(months)), key=util.dt_from_month)
+                active_months = sorted(list(set(request.form) & set(months)), key=sorting.dt_from_month)
                 job = dbc.Maintenance(request.form["name"],
                                       request.form["desc"],
                                       active_months)
                 job.insert()
 
             elif "edit" in request.form:
-                active_months = sorted(list(set(request.form) & set(months)), key=util.dt_from_month)
+                active_months = sorted(list(set(request.form) & set(months)), key=sorting.dt_from_month)
                 job = dbc.Maintenance(request.form["name"],
                                       request.form["desc"],
                                       active_months,
