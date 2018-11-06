@@ -179,10 +179,19 @@ class DBConnection:
             self.execute("DELETE FROM months WHERE mid=?", (mid,))
 
 
-class Client:
+class DBItem:
+    def __init__(self, name, id_=None):
+        self.name = name or ""
+        self.id = id_ or -1
+
+    def insert(self): raise NotImplementedError
+
+    def update(self): raise NotImplementedError
+
+
+class Client(DBItem):
     def __init__(self, name, cid=None, plants=None):
-        self.id = cid or -1
-        self.name = name
+        super().__init__(name, cid)
         self.plants = plants or []
         self.pids = [plant.id for plant in self.plants] if type(self.plants[0]) == Plant else self.plants
 
@@ -204,10 +213,9 @@ class Client:
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
 
-class Plant:
+class Plant(DBItem):
     def __init__(self, name, latin_name, blooming_period, pid=None, jobs=None):
-        self.id = pid or -1  # This is only used when reading from the database
-        self.name = name
+        super().__init__(name, pid)
         self.latin_name = latin_name
         self.blooming_period = blooming_period
         self.jobs = jobs or []
@@ -235,10 +243,9 @@ class Plant:
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
 
-class Maintenance:
+class Maintenance(DBItem):
     def __init__(self, name, description, months, mid=None):
-        self.id = mid or -1
-        self.name = name or ""
+        super().__init__(name, mid)
         self.description = description or ""
         self.months = sorted(months, key=sorting.dt_from_month) if months is not None else []
 
