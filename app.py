@@ -1,10 +1,11 @@
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, flash
+from sqlite3 import IntegrityError
 from flask_sslify import SSLify
 import sorting
 import dbc
 import os
 
-# TODO use flash() to add invalid form detection including non-unique latin names and invalid months
+# TODO return error 400 for invalid forms
 app = Flask(__name__)
 sslify = SSLify(app=app, permanent=True)
 months = ["January", "February", "March", "April", "May", "June", "July",
@@ -48,13 +49,25 @@ def plants():
             elif "add" in request.form:
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
                                   request.form["blooming-period"], jobs=mids_to_link)
-                plant.insert()
+                try:
+                    plant.insert()
+                except IntegrityError as e:
+                    if "UNIQUE" in str(e):
+                        flash("Adding plant failed - latin names must be unique for each plant.")
+                    else:
+                        flash("Server error - please try again.")
 
             elif "edit" in request.form:
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
                                   request.form["blooming-period"], pid=request.form["id"],
                                   jobs=mids_to_link)
-                plant.update()
+                try:
+                    plant.update()
+                except IntegrityError as e:
+                    if "UNIQUE" in str(e):
+                        flash("Editing plant failed - latin names must be unique for each plant.")
+                    else:
+                        flash("Server error - please try again.")
         return render_template("plants.html", data=c.load_sql_plant_data(),
                                job_list=c.load_sql_job_data())
 
