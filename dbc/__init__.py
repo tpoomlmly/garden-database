@@ -1,4 +1,6 @@
+from werkzeug.exceptions import BadRequest
 import sqlite3 as sql
+import traceback
 import sorting
 
 
@@ -36,11 +38,18 @@ class DBConnection:
                      "PRIMARY KEY(pid ,mid));")
         return self
 
-    def __exit__(self, *args):
-        self.con.commit()
-        self.con.close()
-        self.con = None
-        self.cur = None
+    def __exit__(self, exc_type, exc_value, tb):
+        if tb is None:
+            self.con.commit()
+            self.con.close()
+            self.con = None
+            self.cur = None
+            return True
+        else:
+            self.con.rollback()
+            self.con.close()
+            traceback.print_exception(exc_type, exc_value, tb)
+            raise BadRequest()
 
     def execute(self, *args):
         self.cur.execute(*args)

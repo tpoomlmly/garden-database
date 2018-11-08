@@ -5,7 +5,6 @@ import sorting
 import dbc
 import os
 
-# TODO return error 400 for invalid forms
 app = Flask(__name__)
 # sslify = SSLify(app=app, permanent=True)
 months = ["January", "February", "March", "April", "May", "June", "July",
@@ -65,8 +64,6 @@ def plants():
                 except IntegrityError as e:
                     if "UNIQUE" in str(e):
                         flash("Editing plant failed - latin names must be unique for each plant.")
-                    else:
-                        flash("Server error - please try again.")
         return render_template("plants.html", data=c.load_sql_plant_data(),
                                job_list=c.load_sql_job_data())
 
