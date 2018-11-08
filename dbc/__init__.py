@@ -202,7 +202,9 @@ class Client(DBItem):
     def __init__(self, name, cid=None, plants=None):
         super().__init__(name, cid)
         self.plants = plants or []
-        self.pids = [plant.id for plant in self.plants] if type(self.plants[0]) == Plant else self.plants
+        self.pids = self.plants
+        if self.plants and type(self.plants[0]) == Plant:
+            self.pids = [plant.id for plant in self.plants]
 
     def insert(self):
         with DBConnection() as c:
@@ -228,7 +230,9 @@ class Plant(DBItem):
         self.latin_name = latin_name
         self.blooming_period = blooming_period
         self.jobs = jobs or []
-        self.mids = [job.id for job in self.jobs] if type(self.jobs[0]) == Maintenance else self.jobs
+        self.mids = self.jobs
+        if self.jobs and type(self.jobs[0]) == Maintenance:
+            self.mids = [job.id for job in self.jobs]
         with DBConnection() as c:
             self.months = c.select_months_of_plant(self.id)
 
