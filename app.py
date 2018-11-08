@@ -1,13 +1,13 @@
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, flash
 from sqlite3 import IntegrityError
-from flask_sslify import SSLify
+# from flask_sslify import SSLify
 import sorting
 import dbc
 import os
 
 # TODO return error 400 for invalid forms
 app = Flask(__name__)
-sslify = SSLify(app=app, permanent=True)
+# sslify = SSLify(app=app, permanent=True)
 months = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]
 
@@ -39,7 +39,6 @@ def clients():
 
 @app.route("/plants", methods=["GET", "POST"])
 def plants():
-    # TODO add sensible way to handle blooming period (perhaps month selection again?)
     with dbc.DBConnection() as c:
         if request.method == "POST":
             mids_to_link = [field[4:] for field in request.form.keys() if field[:3] == "job"]
@@ -108,4 +107,5 @@ def favicon():
 if __name__ == "__main__":
     context = ('server.crt', 'server.key')
     app.secret_key = "Ye to misery wisdom plenty polite to as."
-    app.run(host='0.0.0.0', port=443, debug=False, ssl_context=context)
+    # app.run(host='0.0.0.0', port=443, debug=False, ssl_context=context)
+    app.run(host='0.0.0.0', port=80, debug=False)
