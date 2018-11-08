@@ -49,6 +49,8 @@ class DBConnection:
         else:
             self.con.rollback()
             self.con.close()
+            self.con = None
+            self.cur = None
             traceback.print_exception(exc_type, exc_value, tb)
             raise BadRequest()
 
