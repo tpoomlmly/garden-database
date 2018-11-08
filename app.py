@@ -1,9 +1,11 @@
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, flash
 from sqlite3 import IntegrityError
-# from flask_sslify import SSLify
-import sorting
 import dbc
 import os
+
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, flash
+# from flask_sslify import SSLify
+
+import sorting
 
 app = Flask(__name__)
 # sslify = SSLify(app=app, permanent=True)
