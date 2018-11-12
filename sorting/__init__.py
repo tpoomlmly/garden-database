@@ -10,4 +10,4 @@ def dt_from_month(month):
     try:
         return dt.strptime(month, '%B')
     except ValueError:
-        raise  BadRequest
+        raise BadRequest
