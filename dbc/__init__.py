@@ -219,10 +219,10 @@ class Client(DBItem):
 
     def update(self):
         with DBConnection() as c:
-            c.delete_pc_links(cid=self.id)
             c.execute("UPDATE clients "
                       "SET name=? WHERE cid=?",
                       (self.name, self.id))
+            c.delete_pc_links(cid=self.id)
             for pid in self.pids:
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
@@ -250,11 +250,11 @@ class Plant(DBItem):
 
     def update(self):
         with DBConnection() as c:
-            c.delete_jp_links(pid=self.id)
             c.execute("UPDATE plants "
                       "SET name=?, latin_name=?, blooming_period=? "
                       "WHERE pid=?",
                       (self.name, self.latin_name, self.blooming_period, self.id))
+            c.delete_jp_links(pid=self.id)
             for mid in self.mids:
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
@@ -276,9 +276,9 @@ class Maintenance(DBItem):
 
     def update(self):
         with DBConnection() as c:
-            c.delete_mj_links(self.id)
             c.execute("UPDATE jobs "
                       "SET name=?, description=? WHERE mid=?",
                       (self.name, self.description, self.id))
+            c.delete_mj_links(self.id)
             for month in self.months:
                 c.link_month_to_job(self.id, month)
