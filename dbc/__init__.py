@@ -21,7 +21,7 @@ class DBConnection:
                      "(cid INTEGER PRIMARY KEY, name TEXT NOT NULL);")
 
         self.perform("CREATE TABLE IF NOT EXISTS plants "
-                     "(pid INTEGER PRIMARY KEY, name TEXT, latin_name TEXT UNIQUE, "
+                     "(pid INTEGER PRIMARY KEY, name TEXT, latin_name TEXT, "
                      "blooming_period TEXT);")
 
         self.perform("CREATE TABLE IF NOT EXISTS jobs "
