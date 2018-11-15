@@ -108,7 +108,7 @@ def favicon():
 
 
 if __name__ == "__main__":
-    context = ('server.crt', 'server.key')
-    app.secret_key = "Ye to misery wisdom plenty polite to as."
+    # context = ('server.crt', 'server.key')
+    # app.secret_key = "Ye to misery wisdom plenty polite to as."
     # app.run(host='0.0.0.0', port=443, debug=False, ssl_context=context)
     app.run(host='0.0.0.0', port=80, debug=False)
