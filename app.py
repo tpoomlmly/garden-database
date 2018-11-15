@@ -2,12 +2,13 @@ import dbc
 import os
 
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for
-# from flask_sslify import SSLify
+from flask_sslify import SSLify
 
 import sorting
 
 app = Flask(__name__)
-# sslify = SSLify(app=app, permanent=True)
+sslify = SSLify(app=app, permanent=True)
+
 # A necessary list of all the months.
 months = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]
@@ -108,7 +109,6 @@ def favicon():
 
 
 if __name__ == "__main__":
-    # context = ('server.crt', 'server.key')
-    # app.secret_key = "Ye to misery wisdom plenty polite to as."
-    # app.run(host='0.0.0.0', port=443, debug=False, ssl_context=context)
-    app.run(host='0.0.0.0', port=80, debug=False)
+    context = ('server.crt', 'server.key')
+    app.secret_key = "Ye to misery wisdom plenty polite to as."
+    app.run(host='0.0.0.0', port=443, debug=False, ssl_context=context)
