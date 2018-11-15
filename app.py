@@ -1,8 +1,7 @@
-from sqlite3 import IntegrityError
 import dbc
 import os
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, flash
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for
 # from flask_sslify import SSLify
 
 import sorting
@@ -49,23 +48,14 @@ def plants():
             elif "add" in request.form:
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
                                   request.form["blooming-period"], jobs=mids_to_link)
-                try:
-                    plant.insert()
-                except IntegrityError as e:
-                    if "UNIQUE" in str(e):
-                        flash("Adding plant failed - latin names must be unique for each plant.")
-                    else:
-                        flash("Server error - please try again.")
+                plant.insert()
 
             elif "edit" in request.form:
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
                                   request.form["blooming-period"], pid=request.form["id"],
                                   jobs=mids_to_link)
-                try:
-                    plant.update()
-                except IntegrityError as e:
-                    if "UNIQUE" in str(e):
-                        flash("Editing plant failed - latin names must be unique for each plant.")
+                plant.update()
+
         return render_template("plants.html", data=c.load_sql_plant_data(),
                                job_list=c.load_sql_job_data())
 
