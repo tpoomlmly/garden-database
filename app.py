@@ -1,20 +1,22 @@
 import dbc
 import os
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for
+from flask import Flask, render_template, send_from_directory, request, make_response, session
 
 import sorting
 
 app = Flask(__name__)
+app.secret_key = b'L<g^3gEXdF>4"g2~5Qpc578E9!>P6R=j*,8t'
 # A necessary list of all the months.
 months = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
-    """Redirect all requests for '/' to the clients page"""
-    return redirect(url_for("clients"))
+    """Handle database choosing."""
+    response = make_response(render_template("index.html", db_list=["database.db", "database2.db"]))
+    return response
 
 
 @app.route("/clients", methods=["GET", "POST"])

@@ -5,7 +5,7 @@
 {{ super() }}
 {# Begin navbar. This is outside of the main container-fluid so that it fills the screen from edge to edge. #}
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-    <span class="navbar-brand">Garden-db</span>
+    <a href="{{ url_for('index') }}"><span class="navbar-brand">Garden-db</span></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-content">
         <span class="navbar-toggler-icon"></span>
     </button>

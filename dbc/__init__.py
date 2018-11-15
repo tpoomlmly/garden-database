@@ -6,14 +6,14 @@ import sorting
 class DBConnection:
     """Database connection handler class."""
 
-    def __init__(self):
+    def __init__(self, dbname=None):
         """Specify the database name and initialise connection and cursor variables.
 
         Initialising self.con and self.cur as None has the quirk that a
         'with' statement is required to instantiate the class,
         otherwise an AttributeError is raised.
         """
-        self.dbname = "database.db"
+        self.dbname = dbname or "database.db"
         self.con = None
         self.cur = None
 

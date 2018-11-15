@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4 text-center">Garden-db</h1>
+        <hr class="my-4">
+        <p class="lead text-center">Please select a database file:</p>
+        <form method="post">
+            <select class="custom-select custom-select-lg mb-5" onchange="this.form.submit()">
+                <option selected>Please select a database file</option>
+                {% for name in db_list %}
+                <option value="{{ name }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <p class="text-center">Please contact Tommy to add a new database.</p>
+    </div>
+</div>
+{% endblock %}
