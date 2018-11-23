@@ -1,20 +1,92 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div class="jumbotron jumbotron-fluid">
-    <div class="container">
+<div class="jumbotron jumbotron-fluid mb-0 rounded-0" style="height: 100vh;">
+    <div class="container-fluid">
         <h1 class="display-4 text-center">Garden-db</h1>
         <hr class="my-4">
         <p class="lead text-center">Please select a database file:</p>
-        <form method="post">
-            <select class="custom-select custom-select-lg mb-5" onchange="this.form.submit()">
+        <form method="post" class="text-center">
+            <select class="custom-select custom-select-lg mb-5 w-auto" onchange="this.form.submit()" name="name">
                 <option selected>Please select a database file</option>
                 {% for name in db_list %}
                 <option value="{{ name }}">{{ name }}</option>
                 {% endfor %}
             </select>
+            <input type="hidden" name="select">
         </form>
-        <p class="text-center">Please contact Tommy to add a new database.</p>
+        <div class="row justify-content-center">
+            <div class="col col-auto">
+                <button type="button" id="add-btn" class="btn btn-sm btn-info" data-toggle="modal" data-target="#popup-div-add">
+                    Add a new database
+                </button>
+            </div>
+            <div class="col col-auto">
+                <button type="button" id="delete-btn" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#popup-div-delete">
+                    Delete a database
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="popup-div-add" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+
+        {# Begin add popup content #}
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="add-title">Add a new blank database</h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form method="post" class="form-horizontal" autocomplete="off">
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="form-group row">
+                            <label class="control-label" for="add-name">Database name:</label>
+                            <input type="text" class="form-control" id="add-name" name="name" placeholder="Enter database name">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" name="add">Add database</button>
+                </div>
+            </form>
+        </div>
+        {# End add popup content #}
+    </div>
+</div>
+
+<div id="popup-div-delete" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+
+        {# Begin add popup content #}
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="deletetitle">Delete a database</h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form method="post" class="form-horizontal" autocomplete="off"
+                  onsubmit="return confirm('Are you sure you want to delete this database?');">
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="form-group row">
+                            <label class="control-label" for="delete-name">Database name:</label>
+                            <select class="custom-select" id="delete-name" name="name">
+                                <option selected>Please select a database file</option>
+                                {% for name in db_list %}
+                                <option value="{{ name }}">{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger" name="delete">Delete database</button>
+                </div>
+            </form>
+        </div>
+        {# End delete popup content #}
     </div>
 </div>
 {% endblock %}

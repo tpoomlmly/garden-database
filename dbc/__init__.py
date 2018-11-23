@@ -13,7 +13,7 @@ class DBConnection:
         'with' statement is required to instantiate the class,
         otherwise an AttributeError is raised.
         """
-        self.dbname = dbname or "database.db"
+        self.dbname = (dbname + ".db") if dbname else "Default.db"
         self.con = None
         self.cur = None
 
@@ -332,9 +332,9 @@ class DBItem:
         self.name = name or ""
         self.id = id_ or -1
 
-    def insert(self): raise NotImplementedError
+    def insert(self, dbname=None): raise NotImplementedError
 
-    def update(self): raise NotImplementedError
+    def update(self, dbname=None): raise NotImplementedError
 
 
 class Client(DBItem):
@@ -358,25 +358,25 @@ class Client(DBItem):
         if self.plants and type(self.plants[0]) == Plant:
             self.pids = [plant.id for plant in self.plants]
 
-    def insert(self):
+    def insert(self, dbname=None):
         """Insert this Client's data into the database.
 
         Inserts the client's name, then links all the plants they own.
         """
-        with DBConnection() as c:
+        with DBConnection(dbname) as c:
             c.execute("INSERT INTO clients (name) VALUES (?)", (self.name,))
             c.execute("SELECT last_insert_rowid()")
             self.id = c.fetchall()[0][0]
             for pid in self.pids:
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
-    def update(self):
+    def update(self, dbname=None):
         """Update the database record corresponding to this Client's ID.
 
         Update the name, and also re-link the plants in case any plant
         links have changed.
         """
-        with DBConnection() as c:
+        with DBConnection(dbname) as c:
             c.execute("UPDATE clients "
                       "SET name=? WHERE cid=?",
                       (self.name, self.id))
@@ -408,13 +408,13 @@ class Plant(DBItem):
         with DBConnection() as c:
             self.months = c.select_months_of_plant(self.id)
 
-    def insert(self):
+    def insert(self, dbname=None):
         """Insert this Plant's data into the database.
 
         Inserts the plant's name, latin name and blooming period, then
         links all necessary Maintenance jobs.
         """
-        with DBConnection() as c:
+        with DBConnection(dbname) as c:
             c.execute("INSERT INTO plants (name,latin_name,blooming_period) VALUES (?,?,?)",
                       (self.name, self.latin_name, self.blooming_period))
             c.execute("SELECT last_insert_rowid()")
@@ -422,13 +422,13 @@ class Plant(DBItem):
             for mid in self.mids:
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
-    def update(self):
+    def update(self, dbname=None):
         """Update the database record corresponding to this Plant's ID.
 
         Update the normal name, latin name and blooming period, and
         re-link any maintenance jobs in case this data has changed.
         """
-        with DBConnection() as c:
+        with DBConnection(dbname) as c:
             c.execute("UPDATE plants "
                       "SET name=?, latin_name=?, blooming_period=? "
                       "WHERE pid=?",
@@ -454,12 +454,12 @@ class Maintenance(DBItem):
         self.description = description or ""
         self.months = sorted(months, key=sorting.dt_from_month) if months is not None else []
 
-    def insert(self):
+    def insert(self, dbname=None):
         """Insert this Maintenance's data into the database.
 
         Insert the name and description, then link all necessary months.
         """
-        with DBConnection() as c:
+        with DBConnection(dbname) as c:
             c.execute("INSERT INTO jobs (name,description) VALUES (?,?)",
                       (self.name, self.description))
             c.execute("SELECT last_insert_rowid()")
@@ -467,13 +467,13 @@ class Maintenance(DBItem):
             for month in self.months:
                 c.link_month_to_job(self.id, month)
 
-    def update(self):
+    def update(self, dbname=None):
         """Update the database record corresponding to this job's ID.
 
         Update the name and description, and relink the months in case
         any of these have changed.
         """
-        with DBConnection() as c:
+        with DBConnection(dbname) as c:
             c.execute("UPDATE jobs "
                       "SET name=?, description=? WHERE mid=?",
                       (self.name, self.description, self.id))

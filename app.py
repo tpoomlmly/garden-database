@@ -1,7 +1,7 @@
 import dbc
 import os
 
-from flask import Flask, render_template, send_from_directory, request, make_response, session
+from flask import Flask, render_template, send_from_directory, request, make_response, session, redirect, url_for
 
 import sorting
 
@@ -15,7 +15,16 @@ months = ["January", "February", "March", "April", "May", "June", "July",
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Handle database choosing."""
-    response = make_response(render_template("index.html", db_list=["database.db", "database2.db"]))
+    if request.method == "GET":
+        db_list = [file[:-3] for file in os.listdir(".") if file.endswith(".db")]
+        response = make_response(render_template("index.html", db_list=db_list))
+    else:
+        if "delete" in request.form:
+            os.remove(request.form["name"] + ".db")
+            session.pop("name", None)
+        elif "add" in request.form or "select" in request.form:
+            session["name"] = request.form["name"]
+        response = make_response(redirect(url_for("clients")))
     return response
 
 
@@ -27,7 +36,8 @@ def clients():
     the browser in the form.
     Return clients.html, rendered with the client, plant and month data inserted.
     """
-    with dbc.DBConnection() as c:
+    dbname = session["name"] if "name" in session else None
+    with dbc.DBConnection(dbname) as c:
         if request.method == "POST":
             # In the form, the browser may send a list of plant IDs to link. They arrive as form fields
             # with names like 'plant-n' where n is the ID of a plant to link.
@@ -38,11 +48,11 @@ def clients():
 
             elif "add" in request.form:
                 client = dbc.Client(request.form["name"], plants=pids_to_link)
-                client.insert()
+                client.insert(dbname)
 
             elif "edit" in request.form:
                 client = dbc.Client(request.form["name"], cid=request.form["id"], plants=pids_to_link)
-                client.update()
+                client.update(dbname)
 
         return render_template("clients.html", data=c.load_sql_client_data(),
                                plant_list=c.load_sql_plant_data(), months=months)
@@ -50,7 +60,8 @@ def clients():
 
 @app.route("/plants", methods=["GET", "POST"])
 def plants():
-    with dbc.DBConnection() as c:
+    dbname = session["name"] if "name" in session else None
+    with dbc.DBConnection(dbname) as c:
         if request.method == "POST":
             mids_to_link = [field[4:] for field in request.form.keys() if field[:3] == "job"]
             if "delete" in request.form:
@@ -60,13 +71,13 @@ def plants():
                 # Create a dbc.Plant object from the data in the form and insert it into the database.
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
                                   request.form["blooming-period"], jobs=mids_to_link)
-                plant.insert()
+                plant.insert(dbname)
 
             elif "edit" in request.form:
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
                                   request.form["blooming-period"], pid=request.form["id"],
                                   jobs=mids_to_link)
-                plant.update()
+                plant.update(dbname)
 
         return render_template("plants.html", data=c.load_sql_plant_data(),
                                job_list=c.load_sql_job_data())
@@ -74,7 +85,8 @@ def plants():
 
 @app.route("/maintenance", methods=["GET", "POST"])
 def jobs():
-    with dbc.DBConnection() as c:
+    dbname = session["name"] if "name" in session else None
+    with dbc.DBConnection(dbname) as c:
         if request.method == "POST":
             # & is the intersection operator. set() converts the dict_keyiterator and list to sets so that the
             # intersection can be found of them. list() converts this back to a list which is sorted on the
@@ -89,14 +101,14 @@ def jobs():
                 job = dbc.Maintenance(request.form["name"],
                                       request.form["desc"],
                                       active_months)
-                job.insert()
+                job.insert(dbname)
 
             elif "edit" in request.form:
                 job = dbc.Maintenance(request.form["name"],
                                       request.form["desc"],
                                       active_months,
                                       request.form["id"])
-                job.update()
+                job.update(dbname)
         return render_template("maintenance.html", data=c.load_sql_job_data(), month_list=months)
 
 
