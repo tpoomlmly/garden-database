@@ -1,6 +1,8 @@
-# Garden-db
+Analysis
+========
 
-**Background to problem**
+Background to problem
+---------------------
 
 Professional gardeners need a way to manage their many clients and the various
 plants that they all own. Each type of plant requires to be tended to during
@@ -18,7 +20,8 @@ planning the maintenance that needs to be done each month extremely complicated.
 Knowing what needs to be done and when means that the right tools for the job
 can be taken each day.
 
-**Currently available solutions**
+Currently available solutions
+-----------------------------
 
 The end user’s current system in place uses a paper record. This consists of a
 calendar created in Microsoft Word for each client, with the maintenance for
@@ -39,7 +42,8 @@ make a difference whether the data is kept on paper or on a smartphone, however
 in a garden there is nowhere to charge a portable device and it would be
 catastrophic if access to data was lost.
 
-**Description of solution**
+Description of solution
+-----------------------
 
 My project will be a database with a web front-end, allowing the end user to add
 and remove clients, plants and jobs that each plant needs doing. The data will
@@ -60,7 +64,8 @@ will contain a list of all plants in the database and all their information, as
 well as which clients own them and what maintenance each plant has for each
 month.
 
-**Interview with end user**
+Interview with end user
+-----------------------
 
 My end user is Sue Poll, who is a professional gardener and specifically
 requested this software to be made.
@@ -150,7 +155,8 @@ current month?
 **A:** I would rather have it just highlight the current month. I usually plan
 for the month ahead at the end of the current one.
 
-**User requirements**
+User requirements
+-----------------
 
 1.  A page for displaying clients that allows the end user to select a client
     and a month, to bring up a list of that month’s maintenance for all the
@@ -173,7 +179,8 @@ for the month ahead at the end of the current one.
 6.  An easy-to-use, abstract interface that disguises the technical aspects of
     databases
 
-**SMART objectives**
+SMART objectives
+----------------
 
 1.  To have a database file that is generated and initialised when the if it
     does not already exist
