@@ -2,6 +2,7 @@ import dbc
 import os
 
 from flask import Flask, render_template, send_from_directory, request, make_response, session, redirect, url_for
+from werkzeug.exceptions import BadRequest
 
 import sorting
 
@@ -31,7 +32,10 @@ def index():
         response = make_response(render_template("index.html", db_list=db_list))
     else:
         if "delete" in request.form:
-            os.remove(request.form["name"] + ".db")
+            try:
+                os.remove(request.form["name"] + ".db")
+            except OSError:
+                return BadRequest()
             session.pop("name", None)
         elif "add" in request.form or "select" in request.form:
             session["name"] = request.form["name"]
