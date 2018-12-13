@@ -14,7 +14,18 @@ months = ["January", "February", "March", "April", "May", "June", "July",
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    """Handle database choosing."""
+    """Handle database choosing.
+
+    If the request is a GET request, make a list of the .db files in the
+    current directory without their extensions, and pass that to the
+    template renderer.
+    Otherwise, check for the form type. If the form is for deleting,
+    delete the specified database file and remove the database name from
+    the session. If the form is for adding or selecting, set the
+    database name in the session. It doesn't matter whether the form is
+    for adding or selecting, since sqlite3 creates the database file if
+    it doesn't exist.
+    """
     if request.method == "GET":
         db_list = [file[:-3] for file in os.listdir(".") if file.endswith(".db")]
         response = make_response(render_template("index.html", db_list=db_list))
