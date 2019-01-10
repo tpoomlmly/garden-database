@@ -260,13 +260,10 @@ class DBConnection:
         Extract each month from the 1-tuple it comes in and return it
         in a list.
         """
-        self.execute("SELECT DISTINCT month from plants "
-                     "INNER JOIN plant_job_junction "
-                     "ON plants.pid=plant_job_junction.pid "
-                     "INNER JOIN jobs "
-                     "ON plant_job_junction.mid=jobs.mid "
-                     "INNER JOIN months ON jobs.mid=months.mid "
-                     "WHERE plants.pid=?", (pid,))
+        self.execute("SELECT DISTINCT month from plant_job_junction "
+                     "INNER JOIN months "
+                     "ON plant_job_junction.mid=months.mid "
+                     "WHERE pid=?", (pid,))
         return [row[0] for row in self.fetchall()]
 
     def link_plant_to_client(self, cid, pid):
