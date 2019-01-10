@@ -10,8 +10,9 @@ class DBConnection:
         """Specify the database name and initialise connection and cursor variables.
 
         Initialising self.con and self.cur as None has the quirk that a
-        'with' statement is required to instantiate the class,
-        otherwise an AttributeError is raised.
+        'with' statement is required to use the class's methods,
+        otherwise an AttributeError is raised when trying to perform
+        None.execute().
         """
         self.dbname = (dbname + ".db") if dbname else "Default.db"
         self.con = None
