@@ -38,7 +38,7 @@ def index():
                 return BadRequest()
             session.pop("name", None)
         elif "add" in request.form or "select" in request.form:
-            session["name"] = request.form["name"]
+            session["name"] = request.form["name"].translate({ord(c): None for c in '\/:*?"<>|'})
         response = make_response(redirect(url_for("clients")))
     return response
 
