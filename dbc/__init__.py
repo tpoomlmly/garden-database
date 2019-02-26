@@ -169,7 +169,7 @@ class DBConnection:
         to create a list of all the maintenance jobs the Plant has.
         """
         return [Plant(row[1], row[2], row[3], pid=row[0],
-                      jobs=self.select_jp_links(pid=row[0])) for row in self.select_plants(pid)]
+                      jobs=self.select_jp_links(pid=row[0]), dbname=self.dbname) for row in self.select_plants(pid)]
 
     def load_sql_job_data(self, mid=None):
         """Create a list of Maintenance objects from the job table.
@@ -200,7 +200,7 @@ class DBConnection:
                          "INNER JOIN plants ON plants.pid=client_plant_junction.pid "
                          "WHERE cid=?", (cid,))
             return [Plant(row[1], row[2], row[3], pid=row[0],
-                          jobs=self.select_jp_links(pid=row[0])) for row in self.fetchall()]
+                          jobs=self.select_jp_links(pid=row[0]), dbname=self.dbname) for row in self.fetchall()]
         elif pid is not None:
             self.execute("SELECT clients.* FROM client_plant_junction "
                          "INNER JOIN clients ON clients.cid=client_plant_junction"
@@ -234,7 +234,7 @@ class DBConnection:
                          "INNER JOIN plants ON plants.pid=plant_job_juncion.mid "
                          "WHERE mid=?", (mid,))
             return [Plant(row[1], row[2], row[3], pid=row[0],
-                          jobs=self.select_jp_links(pid=row[0])) for row in self.fetchall()]
+                          jobs=self.select_jp_links(pid=row[0]), dbname=self.dbname) for row in self.fetchall()]
         else:
             self.execute("SELECT * FROM plant_job_junction")
             return self.fetchall()
@@ -389,7 +389,7 @@ class Plant(DBItem):
     list of the months when this plant needs tending to.
     """
 
-    def __init__(self, name, latin_name, blooming_period, pid=None, jobs=None):
+    def __init__(self, name, latin_name, blooming_period, pid=None, jobs=None, dbname=None):
         """Initialise the Plant's attributes.
 
         If the job list is a list of Maintenance objects then extract
@@ -402,7 +402,7 @@ class Plant(DBItem):
         self.mids = self.jobs
         if self.jobs and type(self.jobs[0]) == Maintenance:
             self.mids = [job.id for job in self.jobs]
-        with DBConnection() as c:
+        with DBConnection(dbname[:-3]) as c:
             self.months = c.select_months_of_plant(self.id)
 
     def insert(self, dbname=None):
