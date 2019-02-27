@@ -323,21 +323,23 @@ class DBItem:
     Every database entry has a name and an ID, and must be able to
     insert itself into the database and update the entry corresponding
     to its ID.
+    dbname takes the current database name with the .db extension.
     """
 
-    def __init__(self, name, id_=None):
+    def __init__(self, name, id_=None, dbname=None):
         self.name = name or ""
         self.id = id_ or -1
+        self.dbname = dbname[:-3] if dbname else None
 
-    def insert(self, dbname=None): raise NotImplementedError
+    def insert(self): raise NotImplementedError
 
-    def update(self, dbname=None): raise NotImplementedError
+    def update(self): raise NotImplementedError
 
 
 class Client(DBItem):
     """Client class. Inherits DBItem and has a list of plants owned and their IDs."""
 
-    def __init__(self, name, cid=None, plants=None):
+    def __init__(self, name, cid=None, plants=None, dbname=None):
         """Initialises the Client's attributes.
 
         Requires a name, optional client ID and plant list.
@@ -349,31 +351,31 @@ class Client(DBItem):
         list is a Plant, then extract their IDs and store those in a
         separate variable.
         """
-        super().__init__(name, cid)
+        super().__init__(name, cid, dbname)
         self.plants = plants or []
         self.pids = self.plants
         if self.plants and type(self.plants[0]) == Plant:
             self.pids = [plant.id for plant in self.plants]
 
-    def insert(self, dbname=None):
+    def insert(self):
         """Insert this Client's data into the database.
 
         Inserts the client's name, then links all the plants they own.
         """
-        with DBConnection(dbname) as c:
+        with DBConnection(self.dbname) as c:
             c.execute("INSERT INTO clients (name) VALUES (?)", (self.name,))
             c.execute("SELECT last_insert_rowid()")
             self.id = c.fetchall()[0][0]
             for pid in self.pids:
                 c.link_plant_to_client(cid=self.id, pid=pid)
 
-    def update(self, dbname=None):
+    def update(self):
         """Update the database record corresponding to this Client's ID.
 
         Update the name, and also re-link the plants in case any plant
         links have changed.
         """
-        with DBConnection(dbname) as c:
+        with DBConnection(self.dbname) as c:
             c.execute("UPDATE clients "
                       "SET name=? WHERE cid=?",
                       (self.name, self.id))
@@ -395,23 +397,23 @@ class Plant(DBItem):
         If the job list is a list of Maintenance objects then extract
         each Maintenance's ID and store them separately.
         """
-        super().__init__(name, pid)
+        super().__init__(name, pid, dbname)
         self.latin_name = latin_name
         self.blooming_period = blooming_period
         self.jobs = jobs or []
         self.mids = self.jobs
         if self.jobs and type(self.jobs[0]) == Maintenance:
-            self.mids = [job.id for job in self.jobs]
-        with DBConnection(dbname[:-3]) as c:
+            self.mids = [job.id for job in self.jobs] 
+        with DBConnection(self.dbname) as c:
             self.months = c.select_months_of_plant(self.id)
 
-    def insert(self, dbname=None):
+    def insert(self):
         """Insert this Plant's data into the database.
 
         Inserts the plant's name, latin name and blooming period, then
         links all necessary Maintenance jobs.
         """
-        with DBConnection(dbname) as c:
+        with DBConnection(self.dbname) as c:
             c.execute("INSERT INTO plants (name,latin_name,blooming_period) VALUES (?,?,?)",
                       (self.name, self.latin_name, self.blooming_period))
             c.execute("SELECT last_insert_rowid()")
@@ -419,13 +421,13 @@ class Plant(DBItem):
             for mid in self.mids:
                 c.link_job_to_plant(pid=self.id, mid=mid)
 
-    def update(self, dbname=None):
+    def update(self):
         """Update the database record corresponding to this Plant's ID.
 
         Update the normal name, latin name and blooming period, and
         re-link any maintenance jobs in case this data has changed.
         """
-        with DBConnection(dbname) as c:
+        with DBConnection(self.dbname) as c:
             c.execute("UPDATE plants "
                       "SET name=?, latin_name=?, blooming_period=? "
                       "WHERE pid=?",
@@ -442,21 +444,21 @@ class Maintenance(DBItem):
     which it applies.
     """
 
-    def __init__(self, name, description, months, mid=None):
+    def __init__(self, name, description, months, mid=None, dbname=None):
         """Initialise the Maintenance's attributes.
 
         Sort the list of months using the utility from sorting as the key.
         """
-        super().__init__(name, mid)
+        super().__init__(name, mid, dbname)
         self.description = description or ""
         self.months = sorted(months, key=sorting.dt_from_month) if months is not None else []
 
-    def insert(self, dbname=None):
+    def insert(self):
         """Insert this Maintenance's data into the database.
 
         Insert the name and description, then link all necessary months.
         """
-        with DBConnection(dbname) as c:
+        with DBConnection(self.dbname) as c:
             c.execute("INSERT INTO jobs (name,description) VALUES (?,?)",
                       (self.name, self.description))
             c.execute("SELECT last_insert_rowid()")
@@ -464,13 +466,13 @@ class Maintenance(DBItem):
             for month in self.months:
                 c.link_month_to_job(self.id, month)
 
-    def update(self, dbname=None):
+    def update(self):
         """Update the database record corresponding to this job's ID.
 
         Update the name and description, and relink the months in case
         any of these have changed.
         """
-        with DBConnection(dbname) as c:
+        with DBConnection(self.dbname) as c:
             c.execute("UPDATE jobs "
                       "SET name=?, description=? WHERE mid=?",
                       (self.name, self.description, self.id))

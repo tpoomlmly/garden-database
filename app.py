@@ -62,12 +62,12 @@ def clients():
                 c.drop_client(request.form["id"])
 
             elif "add" in request.form:
-                client = dbc.Client(request.form["name"], plants=pids_to_link)
-                client.insert(dbname)
+                client = dbc.Client(request.form["name"], plants=pids_to_link, dbname=c.dbname)
+                client.insert()
 
             elif "edit" in request.form:
-                client = dbc.Client(request.form["name"], cid=request.form["id"], plants=pids_to_link)
-                client.update(dbname)
+                client = dbc.Client(request.form["name"], cid=request.form["id"], plants=pids_to_link, dbname=c.dbname)
+                client.update()
 
         return render_template("clients.html", data=c.load_sql_client_data(),
                                plant_list=c.load_sql_plant_data(), months=months)
@@ -85,14 +85,14 @@ def plants():
             elif "add" in request.form:
                 # Create a dbc.Plant object from the data in the form and insert it into the database.
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
-                                  request.form["blooming-period"], jobs=mids_to_link)
-                plant.insert(dbname)
+                                  request.form["blooming-period"], jobs=mids_to_link, dbname=c.dbname)
+                plant.insert()
 
             elif "edit" in request.form:
                 plant = dbc.Plant(request.form["name"], request.form["latin-name"],
                                   request.form["blooming-period"], pid=request.form["id"],
-                                  jobs=mids_to_link)
-                plant.update(dbname)
+                                  jobs=mids_to_link, dbname=c.dbname)
+                plant.update()
 
         return render_template("plants.html", data=c.load_sql_plant_data(),
                                job_list=c.load_sql_job_data())
@@ -115,15 +115,17 @@ def jobs():
             elif "add" in request.form:
                 job = dbc.Maintenance(request.form["name"],
                                       request.form["desc"],
-                                      active_months)
-                job.insert(dbname)
+                                      active_months,
+                                      dbname=c.dbname)
+                job.insert()
 
             elif "edit" in request.form:
                 job = dbc.Maintenance(request.form["name"],
                                       request.form["desc"],
                                       active_months,
-                                      request.form["id"])
-                job.update(dbname)
+                                      request.form["id"],
+                                      dbname=c.dbname)
+                job.update()
         return render_template("maintenance.html", data=c.load_sql_job_data(), month_list=months)
 
 
