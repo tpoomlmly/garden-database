@@ -6,7 +6,9 @@ from werkzeug.exceptions import BadRequest
 
 import sorting
 
+# Create the Flask app.
 app = Flask(__name__)
+# A secret key is required to use flask.session.
 app.secret_key = b'L<g^3gEXdF>4"g2~5Qpc578E9!>P6R=j*,8t'
 # A necessary list of all the months.
 months = ["January", "February", "March", "April", "May", "June", "July",
@@ -137,4 +139,4 @@ def favicon():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=False)
+    app.run(host='0.0.0.0', port=80, debug=False)  # Run the app.
